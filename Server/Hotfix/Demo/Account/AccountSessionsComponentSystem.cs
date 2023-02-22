@@ -3,29 +3,24 @@ namespace ET {
         public override void Destroy(AccountSessionsComponent self) {
             self.AccountSessionDictionary.Clear();
         }
-     }
-	[FriendClassAttribute(typeof(ET.AccountSessionsComponent))]
-	public static class AccountSessionsComponentSystem
-	{
-		public static long Get(this AccountSessionsComponent self, long accountId)
-		{
-			if (!self.AccountSessionDictionary.TryGetValue(accountId, out long instanceId))
-				return 0;
-			return instanceId;
-		}
-		public static long Add(this AccountSessionsComponent self, long accountId, long instanceId)
-		{
-			if (self.AccountSessionDictionary.ContainsKey(accountId))
-			{
-				self.AccountSessionDictionary[accountId] = instanceId;
-				return;
-			}
-			self.AccountSessionDictionary.Add(accountId, instanceId);
-		}
-		public static long Remove(this AccountSessionsComponent self, long accountId)
-		{
-			if (self.AccountSessionDictionary.ContainsKey(accountId))
-				self.AccountSessionDictionary.Remove(accountId);
-		}
-	}
+    }
+    [FriendClassAttribute(typeof(ET.AccountSessionsComponent))]
+    public static class AccountSessionsComponentSystem {
+        public static long Get(this AccountSessionsComponent self, long accountId) {
+            if (!self.AccountSessionDictionary.TryGetValue(accountId, out long instanceId))
+                return 0;
+            return instanceId;
+        }
+        public static void Add(this AccountSessionsComponent self, long accountId, long instanceId) {
+            if (self.AccountSessionDictionary.ContainsKey(accountId)) {
+                self.AccountSessionDictionary[accountId] = instanceId;
+                return;
+            }
+            self.AccountSessionDictionary.Add(accountId, instanceId);
+        }
+        public static void Remove(this AccountSessionsComponent self, long accountId) {
+            if (self.AccountSessionDictionary.ContainsKey(accountId))
+                self.AccountSessionDictionary.Remove(accountId);
+        }
+    }
 }

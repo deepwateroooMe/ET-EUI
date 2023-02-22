@@ -1,6 +1,11 @@
 syntax = "proto3";
 package ET; 
 
+message A2C_Disconnect //IMessage
+{
+    int32 Error = 1;
+}
+
 // ResponseType A2C_LoginAccount
 message C2A_LoginAccount //IRequest
 {

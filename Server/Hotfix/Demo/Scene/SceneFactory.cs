@@ -14,7 +14,7 @@ namespace ET {
                 case SceneType.Account: // 现小服：添加了令牌管理 
                     scene.AddComponent<NetKcpComponent, IPEndPoint, int>(startSceneConfig.OuterIPPort, SessionStreamDispatcherType.SessionStreamDispatcherServerOuter);
                     scene.AddComponent<TokenComponent>(); // 就是有了一个最简单的10 分钟令牌有效会话框 
-                    scene.AddComponent<AccountSessionsComponent>(); 
+                    scene.AddComponent<AccountSessionsComponent>();
                     break;
                 case SceneType.Realm:
                     scene.AddComponent<NetKcpComponent, IPEndPoint, int>(startSceneConfig.OuterIPPort, SessionStreamDispatcherType.SessionStreamDispatcherServerOuter);
