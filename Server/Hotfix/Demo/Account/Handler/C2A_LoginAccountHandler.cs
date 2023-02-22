@@ -64,6 +64,18 @@ namespace ET {
                 await DBManagerComponent.Instance.GetZoneDB(session.DomainZone()).Save<Account>(account);
             }
             // 走到这一步就代表我们登录成功了
+            // 顶号操作
+            // 根据帐号 ID 拿到当前的 sessionInstanceID
+            long AccountSessionsInstanceId = session.DomainScene().GetComponent<AccountSessionsComponent>().Get(account.Id);
+            // 如果 session 存在，则表明已经上线了
+            Session otherSession = Game.EventSystem.Get(AccountSessionsInstanceId) as Session;
+            // 发消息给客户端，让它知道断开了
+            otherSession?.Send(new A2C_Disconnect() {Error = 0});
+            // 断掉 Session
+            otherSession?.Disconnect().Coroutine();
+            // 之前登录的帐房已经断开了，被顶掉了，现在我们的 session 需要更新成新帐户的
+            session.DomainScene().GetComponent<AccountSessionsComponent>().Add(account.Id, session.instanceId);
+
             // 5. 创建通假令牌；这里无验证的令牌，生成的方法是生成随机数
             string Token = TimeHelper.ServerNow().ToString() + RandomHelper.RandomNumber(int.MinValue, int.MaxValue).ToString();
             // 6. 添加通讯的令牌
