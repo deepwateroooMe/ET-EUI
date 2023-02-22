@@ -1,6 +1,48 @@
 syntax = "proto3";
-package ET; 
+package ET;
 
+message ServerInfoProto
+{
+    int32 Id = 1;
+    int32 Status = 2;
+    string ServerName = 3;
+}
+//ResponseType A2C_GetServerInfos
+message C2A_GetServerInfos //IRequest
+{
+    int32 RpcId = 90;
+    string Token = 1;
+    int64 AccountId = 2;
+}
+message A2C_GetServerInfos //IResponse
+{
+    int32 RpcId = 90;
+    int32 Error = 91;
+    string Message = 92;
+    repeated ServerInfoProto ServerInfosList = 1;
+}
+//ResponseType M2C_TestActorLocationResonse
+message C2M_TestActorLocationRequest // IActorLocationRequest
+{
+    int32 RpcId = 90;
+    string Content = 1;
+}
+message M2C_TestActorLocationResonse // IActorLocationResponse
+{
+    int32 RpcId = 90;
+    int32 Error = 91;
+    string Message = 92;
+    string Content = 1;
+}
+message C2M_TestActorLocationMessage // IActorLocationMessage
+{
+    int32 RpcId = 90;
+    string Content = 1;
+}
+message M2C_TestActorLocationMessage // IActorMessage
+{
+    string Content = 1;
+}
 message A2C_Disconnect //IMessage
 {
     int32 Error = 1;

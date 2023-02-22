@@ -29,8 +29,9 @@ namespace ET {
                 // finally {
                 //     session?.Dispose();
                 // }
+                // 3. 判断是否取成功
                 if (a2C_LoginAccount.Error != ErrorCode.ERR_Success) {
-                    accountSession?.Dispose();
+                    // accountSession?.Dispose();
                     return a2C_LoginAccount.Error; // 返回错误。与上面的不同，非网络异常
                 }
                 // // 创建一个gate Session,并且保存到SessionComponent中
@@ -42,6 +43,13 @@ namespace ET {
                 // Log.Debug("登陆gate成功!");
                 // Game.EventSystem.PublishAsync(new EventType.LoginFinish() {ZoneScene = zoneScene}).Coroutine();
 
+                // 4. 将服务器返回的房间服务器列表存入组件中
+                foreach (var serverInfoProto in a2C_GetServerInfo.ServerInfoList) {
+                    // 加载到 ServerInfosComponent 上
+                    ServerInfo serverInfo = zoneScene.GetComponent<ServerInfosComponent>().AddChild(ServerInfo);
+                    serverInfo.FromMessage(serverInfoProto);
+                    zoneScene.GetComponent<ServerInfosComponent>().Add(serverInfo);
+                }
                 // 如果成功，把 session 保留给 zoneScene, 作为通讯接口。【这些，就明显看见，服务器的格局小了很多】
                 zoneScene.AddComponent<SessionComponent>().Session = accountSession;
                 // 记录拿到的帐房信息
@@ -53,6 +61,23 @@ namespace ET {
             // catch (Exception e) {
             //     Log.Error(e);
             // }
-        } 
+        }
+        public static async ETTask<int> GetServerInfos(Scene zoneScene) {
+            A2C_GetServerInfo a2C_GetServerInfo = null;
+            try {
+                // 1. 发送请求获取服务器列表的请求消息
+                a2C_GetServerInfo = (A2C_GetServerInfo) await zoneScene.GetComponent<SessionComponent>().Session
+                    .Call(new C2A_GetServerInfo() {
+                            // 2. 在登录成功之后，客户端的 AccountInfoComponent 组件就会纪录当前客户端的 AccountId 和 Token
+                            AccountId = zoneScene.GetComponent<AccountInfoComponent>().AccountId;
+                            Token = zoneScene.GetComponent<AccountInfoComponent>().Token;
+                        });
+            } catch (Exception e) {
+                Log.Error(e.ToString());
+                return ErrorCode.ERR_NetWorkError;
+            }
+            await ETTask.CompletedTask;
+            return ErrorCode.ERR_Success;
+        }
     }
 }
