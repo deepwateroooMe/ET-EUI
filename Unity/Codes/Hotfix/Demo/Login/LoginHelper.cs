@@ -1,3 +1,4 @@
+using NLog.Fluent;
 using System;
 namespace ET {
     
@@ -7,7 +8,7 @@ namespace ET {
     // 当显示层调用Login这个逻辑层代码的时候，可以通过拿到的返回值来知道是否登录成功
     public static class LoginHelper {
 
-        public static async ETTask Login(Scene zoneScene, string address, string account, string password) {
+        public static async ETTask<int> Login(Scene zoneScene, string address, string account, string password) {
             // try { // 【源码】：把捕获异常永远封装在最底层最外面
                 A2C_LoginAccount a2C_LoginAccount = null;
                 Session accountSession = null;
@@ -42,7 +43,7 @@ namespace ET {
                 // Game.EventSystem.PublishAsync(new EventType.LoginFinish() {ZoneScene = zoneScene}).Coroutine();
 
                 // 如果成功，把 session 保留给 zoneScene, 作为通讯接口。【这些，就明显看见，服务器的格局小了很多】
-                zoneScene.AddComponent<SessionComponent>().session = accountSession;
+                zoneScene.AddComponent<SessionComponent>().Session = accountSession;
                 // 记录拿到的帐房信息
                 zoneScene.GetComponent<AccountInfoComponent>().Token = a2C_LoginAccount.Token;
                 zoneScene.GetComponent<AccountInfoComponent>().AccountId = a2C_LoginAccount.AccountId;

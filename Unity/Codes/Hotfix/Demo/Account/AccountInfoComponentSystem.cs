@@ -5,7 +5,7 @@ namespace ET {
             self.AccountId = 0;
         }
     }
-    public static class AccountInfoComponentDestroySystem {
+    public static class AccountInfoComponentSystem {
         
     }
 }

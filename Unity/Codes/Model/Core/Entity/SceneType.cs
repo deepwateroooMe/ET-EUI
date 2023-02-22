@@ -8,7 +8,7 @@
         Http = 4,
         Location = 5,
         Map = 6,
-        Account ＝ 7,  // 添加一个自定义的场景类型，注册登录界面
+        Account = 7,  // 添加一个自定义的场景类型，注册登录界面
         
         // 客户端Model层
         Client = 30,

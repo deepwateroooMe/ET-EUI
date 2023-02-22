@@ -16,5 +16,10 @@ namespace ET
 
         // 自定义，加上一个网络出错
         public const int ERR_NetWorkError = 200002;
+        public const int ERR_LoginInfoError = 200003;
+        public const int ERR_AccountNameFormError = 200004;
+        public const int ERR_PasswordFromError = 200005;
+        public const int ERR_LoginBlackListError = 200006;
+        public const int ERR_LoginPasswordError = 200007;
     }
 }

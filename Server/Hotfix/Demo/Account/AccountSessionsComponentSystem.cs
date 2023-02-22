@@ -1,25 +1,31 @@
 namespace ET {
     public class AccountSessionsComponentDestroySystem : DestroySystem<AccountSessionsComponent> {
-        public override Destroy(AccountSessionsComponent self) {
+        public override void Destroy(AccountSessionsComponent self) {
             self.AccountSessionDictionary.Clear();
         }
      }
-    public static class AccountSessionsComponentSystem {
-        public static long Get(this AccountSessionsComponent self, long accountId) {
-            if (!self.AccountSessionDictionary.TryGetValue(accountId, out long instanceId))
-                return 0;
-            return instanceId;
-        }
-        public static long Add(this AccountSessionsComponent self, long accountId, long instanceId) {
-            if (self.AccountSessionDictionary.ContainsKey(accountId)) {
-                self.AccountSessionDictionary[accountId] = instanceId;
-                return;
-            }
-            self.AccountSessionDictionary.Add(accountId, instanceId);
-        }
-        public static long Remove(this AccountSessionsComponent self, long accountId) {
-            if (self.AccountSessionDictionary.ContainsKey(accountId))
-                self.AccountSessionDictionary.Remove(accountId);
-        }
-     }
+	[FriendClassAttribute(typeof(ET.AccountSessionsComponent))]
+	public static class AccountSessionsComponentSystem
+	{
+		public static long Get(this AccountSessionsComponent self, long accountId)
+		{
+			if (!self.AccountSessionDictionary.TryGetValue(accountId, out long instanceId))
+				return 0;
+			return instanceId;
+		}
+		public static long Add(this AccountSessionsComponent self, long accountId, long instanceId)
+		{
+			if (self.AccountSessionDictionary.ContainsKey(accountId))
+			{
+				self.AccountSessionDictionary[accountId] = instanceId;
+				return;
+			}
+			self.AccountSessionDictionary.Add(accountId, instanceId);
+		}
+		public static long Remove(this AccountSessionsComponent self, long accountId)
+		{
+			if (self.AccountSessionDictionary.ContainsKey(accountId))
+				self.AccountSessionDictionary.Remove(accountId);
+		}
+	}
 }
