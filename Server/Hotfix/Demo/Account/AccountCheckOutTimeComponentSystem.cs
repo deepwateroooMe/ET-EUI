@@ -12,6 +12,7 @@ namespace ET {
             }
         }
     }
+    [ObjectSystem]
     public class AccountCheckOutTimeComponentAwakeSystem : AwakeSystem<AccountCheckOutTimeComponent, long> {
         public override void Awake(AccountCheckOutTimeComponent self, long accountId) {
             self.AccountId = accountId;

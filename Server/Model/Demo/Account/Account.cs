@@ -3,7 +3,7 @@ namespace ET {
         General = 0,
         BlackList = 1
     }
-    [ChildType]
+    [ChildType(typeof(Session))]
     public class Account : Entity, IAwake {
         public string AccountName;
         public string Password;

@@ -1,4 +1,11 @@
 namespace ET {
+    [ObjectSystem]
+    public class AccountSessionsComponentAwakeSystem : AwakeSystem<AccountSessionsComponent> {
+        public override void Awake(AccountSessionsComponent self) {
+            self.AccountSessionDictionary.Clear();
+        }
+    }
+    // 这里有点儿奇怪：只有销毁，都没有创建，哪里来的销毁？
     public class AccountSessionsComponentDestroySystem : DestroySystem<AccountSessionsComponent> {
         public override void Destroy(AccountSessionsComponent self) {
             self.AccountSessionDictionary.Clear();
