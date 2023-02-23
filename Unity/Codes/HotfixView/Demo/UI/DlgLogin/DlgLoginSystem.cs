@@ -31,6 +31,9 @@ namespace ET {
             } catch (Exception e) {
                 Log.Error(e.ToString());
             }
+// TODO: 登录成功之后的逻辑。这块儿逻辑在热更新的 HotfixView 层，就是定义不同的界面类型，再调用卸载与加载 
+            self.DomainScene().GetComponent<UIComponent>().HideWindow(WindowID.WindowID_Login);
+            self.DomainScene().GetComponent<UIComponent>().ShowWindow(WindowID.WindowID_Lobby);
         }
         // // 需要的参数是一个需要返回值的异步函数，所以我们得修改我们的登录方法，将它从同步的调用Login，改为异步
         // public static void OnLoginClickHandler(this DlgLogin self) {

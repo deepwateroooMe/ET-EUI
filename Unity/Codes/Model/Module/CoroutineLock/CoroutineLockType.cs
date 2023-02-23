@@ -10,8 +10,11 @@ namespace ET {
         public const int Resources = 6;
         public const int ResourcesLoader = 7;
         public const int LoadUIBaseWindows = 8;
+        
 // 这里自定义一个登录帐户时使用的
-        public const int LoginAccount = 9;
+        public const int LoginAccount = 9;     // 登录帐户的协程锁类型
+        public const int LoginCenterLock = 10; // 注册登录中心服的协程锁类型
+        public const int GateLoginLock = 11;   // Gate 网关服的协程锁类型
 
         public const int Max = 100; // 这个必须最大
     }
