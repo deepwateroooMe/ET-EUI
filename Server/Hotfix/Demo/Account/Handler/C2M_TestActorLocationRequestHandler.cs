@@ -1,3 +1,5 @@
+using System;
+
 namespace ET {
     [ActorMessageHandler]
     public class C2M_TestActorLocationRequestHandler : AMActorLocationRpcHandler<Unit, C2M_TestActorLocationRequest, M2C_TestActorLocationResponse> {

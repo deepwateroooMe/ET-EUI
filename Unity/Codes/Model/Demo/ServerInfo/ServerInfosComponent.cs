@@ -1,5 +1,8 @@
+using System.Collections.Generic;
+
 namespace ET {
-    public class ServerInfoComponent : Entity, IAwake, IDestroy {
+    [ComponentOf(typeof(Scene))]
+    public class ServerInfosComponent : Entity, IAwake, IDestroy {
         public List<ServerInfo> ServerInfoList = new List<ServerInfo>();
     }
 }

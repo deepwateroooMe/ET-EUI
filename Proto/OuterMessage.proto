@@ -21,13 +21,13 @@ message A2C_GetServerInfos //IResponse
     string Message = 92;
     repeated ServerInfoProto ServerInfosList = 1;
 }
-//ResponseType M2C_TestActorLocationResonse
+//ResponseType M2C_TestActorLocationResponse
 message C2M_TestActorLocationRequest // IActorLocationRequest
 {
     int32 RpcId = 90;
     string Content = 1;
 }
-message M2C_TestActorLocationResonse // IActorLocationResponse
+message M2C_TestActorLocationResponse // IActorLocationResponse
 {
     int32 RpcId = 90;
     int32 Error = 91;
@@ -39,7 +39,7 @@ message C2M_TestActorLocationMessage // IActorLocationMessage
     int32 RpcId = 90;
     string Content = 1;
 }
-message M2C_TestActorLocationMessage // IActorMessage
+message M2C_TestActorMessage // IActorMessage
 {
     string Content = 1;
 }

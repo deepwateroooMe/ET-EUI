@@ -3,10 +3,11 @@ namespace ET {
         General = 0,
         BlackList = 1
     }
+    [ChildType]
     public class Account : Entity, IAwake {
         public string AccountName;
         public string Password;
-        public string CreateTime;
-        public string AccountType;
+        public long CreateTime;
+        public int AccountType;
     }
 }

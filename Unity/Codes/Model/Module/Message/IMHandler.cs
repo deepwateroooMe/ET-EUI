@@ -8,5 +8,6 @@ namespace ET
         Type GetMessageType();
 
         Type GetResponseType();
-    }
+		ETTask Run(Session session, M2C_TestActorMessage message);
+	}
 }
