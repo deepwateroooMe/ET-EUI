@@ -61,7 +61,8 @@ namespace ET {
                     if (accountInfoList.Count > 0) { // 必须得有帐户存在吧
                         // 存在就对帐户信息进行校验
                         account = accountInfoList[0]; // 下面感觉奇怪，它说是个链表，就拿第一个？
-                        session.AddChild(account); // 这里暂时先去掉
+// <<<<<<<<<<<<<<<<<<<<
+                        session.AddChild(account); // 感觉直接接在这个父物件的下面，也不是很好，可是这是它的管理系
                         if (account.AccountType == (int)AccountType.BlackList) { // 被列过黑名单
                             // 如果登录的黑名单类型的帐户，那么断开连接
                             response.Error = ErrorCode.ERR_LoginBlackListError;
@@ -82,6 +83,7 @@ namespace ET {
                             return;
                         }
                     } else { // 帐房在数据库中不存在，就自动注册
+// <<<<<<<<<<<<<<<<<<<<
                         account = session.AddChild<Account>();
                         account.AccountName = request.AccountName.Trim();
                         account.Password = request.Password;

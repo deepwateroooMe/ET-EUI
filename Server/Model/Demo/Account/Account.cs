@@ -4,7 +4,7 @@ namespace ET {
         BlackList = 1
     }
     [ChildType(typeof(Session))]
-    [ComponentOf(typeof(Session))]
+    //[ComponentOf(typeof(Session))]
     public class Account : Entity, IAwake {
         public string AccountName;
         public string Password;

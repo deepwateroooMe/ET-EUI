@@ -77,6 +77,7 @@ namespace ET {
             // 4. 将服务器返回的房间服务器列表存入组件中
             foreach (var serverInfoProto in a2C_GetServerInfo.ServerInfosList) {
                 // 加载到 ServerInfosComponent 上
+// <<<<<<<<<<<<<<<<<<<< 
                 ServerInfo serverInfo = zoneScene.GetComponent<ServerInfosComponent>().AddChild<ServerInfo>();
                 serverInfo.FromMessage(serverInfoProto);
                 zoneScene.GetComponent<ServerInfosComponent>().Add(serverInfo);

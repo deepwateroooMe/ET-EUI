@@ -107,6 +107,7 @@ namespace ET {
             self.AService.SendStream(self.Id, actorId, memoryStream);
         }
     }
+    //[ChildType(typeof(Account))] // : 这个类型好像还不能这么申明！！！
     public sealed class Session: Entity, IAwake<AService>, IDestroy {
         public AService AService;
         
