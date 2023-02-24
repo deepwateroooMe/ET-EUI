@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+
 namespace ET {
     public readonly struct RpcInfo {
         public readonly IRequest Request;
@@ -107,7 +108,7 @@ namespace ET {
             self.AService.SendStream(self.Id, actorId, memoryStream);
         }
     }
-    //[ChildType(typeof(Account))] // : 这个类型好像还不能这么申明！！！
+    [ChildType(typeof(Account))] // : 这个类型好像还不能这么申明！！！这是Model 层，其它子类型都不曾这么添加，一定是添加的地方不对
     public sealed class Session: Entity, IAwake<AService>, IDestroy {
         public AService AService;
         

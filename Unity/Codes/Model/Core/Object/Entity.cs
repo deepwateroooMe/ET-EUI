@@ -124,10 +124,10 @@ namespace ET {
                         Log.Error($"重复设置了Parent: {this.GetType().Name} parent: {this.parent.GetType().Name}");
                         return;
                     }
-                    this.parent.RemoveFromChildren(this);
+                    this.parent.RemoveFromChildren(this); // 先前的父控件，与现在要求确认的父控件不同：先从以前父控件下，移除当前这个子控件
                 }
                 
-                this.parent = value;
+                this.parent = value; // 再将当前子控件的父控件设置为对应类型
                 this.IsComponent = false;
                 this.parent.AddToChildren(this);
                 this.Domain = this.parent.domain;
@@ -624,7 +624,7 @@ namespace ET {
             entity.Parent = this;
             return entity;
         }
-        public T AddChild<T>(bool isFromPool = false) where T : Entity, IAwake {
+        public T AddChild<T>(bool isFromPool = false) where T : Entity, IAwake { // 两步自动化：自动生成 Id; 自动确认父控件；自动调用 Awake()
             Type type = typeof (T);
             T component = (T) Entity.Create(type, isFromPool);
             component.Id = IdGenerater.Instance.GenerateId();

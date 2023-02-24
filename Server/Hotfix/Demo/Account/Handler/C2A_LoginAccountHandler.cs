@@ -46,6 +46,7 @@ namespace ET {
                 session.Disconnect().Coroutine();
                 return;
             }
+            // 4. 通过游戏服务器查询帐户是否存在：下面感觉奇怪，它说是个链表，就拿第一个？ 这里的逻辑是，即使是黑名单，也被保存在数据库，
             // 把后面的 异步逻辑块 用using关键字括起来。 using 关键定，使用完会自动释放组件
             using (session.AddComponent<SessionLockingComponent>()) {
                 // 下面的 using: 解决两个客户端同时登录并且使用相同的账号和密码
@@ -54,21 +55,19 @@ namespace ET {
                 //     这就是数据库里面最重要的一个概念，就是唯一值，我们必须得保证账户是唯一的，才能避免这些情况的发生
                 // 使用协程锁,锁的是异步逻辑,进入这个异步逻辑，就会锁上，直到执行完，才会解锁，让下个逻辑进来
                 using (await CoroutineLockComponent.Instance.Wait(CoroutineLockType.LoginAccount, request.AccountName.GetHashCode())) {
-                    // 4. 通过游戏服务器查询帐户是否存在：下面感觉奇怪，它说是个链表，就拿第一个？
                     var accountInfoList = await DBManagerComponent.Instance.GetZoneDB(session.DomainZone()).
-                        Query<Account>(d => d.AccountName.Equals(request.AccountName.Trim()));
+                        Query<Account>(d => d.AccountName.Equals(request.AccountName.Trim())); // List<T>: 同一个用户名可能注册了多个帐户？
                     Account account = null;
                     if (accountInfoList.Count > 0) { // 必须得有帐户存在吧
                         // 存在就对帐户信息进行校验
-                        account = accountInfoList[0]; // 下面感觉奇怪，它说是个链表，就拿第一个？
-// <<<<<<<<<<<<<<<<<<<<
-                        session.AddChild(account); // 感觉直接接在这个父物件的下面，也不是很好，可是这是它的管理系
+                        account = accountInfoList[0]; // 下面感觉奇怪，它说是个链表，就拿第一个？反正是个示例吧
+//                         session.AddChild(account); // 感觉直接接在这个父物件的下面，也不是很好，而且后现还有两种返回的情况
                         if (account.AccountType == (int)AccountType.BlackList) { // 被列过黑名单
                             // 如果登录的黑名单类型的帐户，那么断开连接
                             response.Error = ErrorCode.ERR_LoginBlackListError;
                             reply();
                             // session.Dispose();
-                            session.Disconnect().Coroutine();
+                            session.Disconnect().Coroutine(); 
                             // 对一些组件使用完及时释放： 比如我们查询数据库的临时实体变量，我们在不使用之后，就得进行判空然后dispose释放
                             account?.Dispose();
                             return;
@@ -82,6 +81,7 @@ namespace ET {
                             account?.Dispose();
                             return;
                         }
+                        session.AddChild(account); // 感觉直接接在这个父物件的下面 // <<<<<<<<<<<<<<<<<<<<
                     } else { // 帐房在数据库中不存在，就自动注册
 // <<<<<<<<<<<<<<<<<<<<
                         account = session.AddChild<Account>();
@@ -90,7 +90,7 @@ namespace ET {
                         account.CreateTime = TimeHelper.ServerNow();
                         account.AccountType = (int)AccountType.General;
                         // 从下面一句可以看到，接下来要处理的就是，MongoDB 数据库类的查询与保存等操作的封装与精简简化
-                        await DBManagerComponent.Instance.GetZoneDB(session.DomainZone()).Save<Account>(account);
+                        await DBManagerComponent.Instance.GetZoneDB(session.DomainZone()).Save<Account>(account); // 异步保存进数据库
                     }
                     // 走到这一步就代表我们登录成功了
                     // 顶号操作：根据帐号 ID 拿到当前的 sessionInstanceID
