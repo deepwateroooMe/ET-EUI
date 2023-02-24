@@ -14,6 +14,7 @@
 			{
 				unitComponent.Remove(unitId);
 			}
+			//await ETTask.CompletedTask;
 		}
 	}
 }

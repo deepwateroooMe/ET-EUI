@@ -28,7 +28,7 @@ namespace ET {
             }
             self.serverInfos.Clear();
             foreach (var serverInfo in serverInfoList) {
-                self.AddChild(serverInfo);
+                //self.AddChild(serverInfo); // for tmp
                 self.serverInfos.Add(serverInfo);
             }
             await ETTask.CompletedTask;

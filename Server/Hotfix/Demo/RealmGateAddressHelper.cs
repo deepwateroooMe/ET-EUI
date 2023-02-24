@@ -1,8 +1,15 @@
 ﻿using System.Collections.Generic;
 namespace ET {
+
     public static class RealmGateAddressHelper {
 
-        public static StartSceneConfig GetGate(int zone) {
+        public static StartSceneConfig GetGateRandomly(int zone) {
+            List<StartSceneConfig> zoneGates = StartSceneConfigCategory.Instance.Gates[zone];
+            int n = RandomHelper.RandomNumber(0, zoneGates.Count); // 这里每次都是随机数生成的，不确定不固定的网关地址
+            return zoneGates[n];
+        }
+
+        public static StartSceneConfig GetGate(int zone, long accountId) {
             List<StartSceneConfig> zoneGates = StartSceneConfigCategory.Instance.Gates[zone];
             
             // int n = RandomHelper.RandomNumber(0, zoneGates.Count); // 这里每次都是随机数生成的，不确定不固定的网关地址

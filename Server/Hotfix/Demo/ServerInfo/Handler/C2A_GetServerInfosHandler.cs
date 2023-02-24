@@ -7,6 +7,7 @@ namespace ET {
             if (session.DomainScene().SceneType != SceneType.Account) {
                 Log.Error($" 请求的服务器 Scene 错误。当前的 Scene 为： {session.DomainScene().SceneType}");
                 session?.Dispose();
+                await ETTask.CompletedTask ;
                 return;
             }
             // 2. 拿到当前 Session 用户的 Token
@@ -16,7 +17,8 @@ namespace ET {
                 response.Error = ErrorCode.ERR_TokenError;
                 reply();
                 session?.Disconnect().Coroutine();
-                return;
+				await ETTask.CompletedTask;
+				return;
             }
             // 4. 遍历服务器的区服信息，返回给客户端【客户端需要权限拿这些东西吗？】
             foreach (var serverInfo in session.DomainScene().GetComponent<ServerInfoManagerComponent>().serverInfos) {

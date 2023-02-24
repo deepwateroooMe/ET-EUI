@@ -1,3 +1,5 @@
+using System;
+
 namespace ET {
     // 需要 protobuf 工具来转换生成可被系统读取的 .cs 文件索引，现在找不到类
     public class L2G_DisconnectGateUnitHandler : AMActorRpcHandler<Scene, L2G_DisconnectGateUnit, G2L_DisconnectGateUnit> {

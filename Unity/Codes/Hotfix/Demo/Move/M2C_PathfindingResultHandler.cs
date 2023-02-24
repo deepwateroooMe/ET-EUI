@@ -21,6 +21,7 @@ namespace ET
 
 				unit.GetComponent<MoveComponent>().MoveToAsync(list, speed).Coroutine();
 			}
+			//await ETTask.CompletedTask;
 		}
 	}
 }

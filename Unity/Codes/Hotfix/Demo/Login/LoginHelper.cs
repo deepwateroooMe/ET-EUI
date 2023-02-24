@@ -1,4 +1,3 @@
-using NLog.Fluent;
 using System;
 namespace ET {
     [FriendClassAttribute(typeof(ET.AccountInfoComponent))]
@@ -70,7 +69,7 @@ namespace ET {
                 Log.Error(e.ToString());
                 return ErrorCode.ERR_NetWorkError;
             }
-            // 3.
+            // 3.判断是否获取成功
             if (a2C_GetServerInfo.Error != ErrorCode.ERR_Success) {
                 // accountSession?.Dispose();
                 return a2C_GetServerInfo.Error; // 返回错误。与上面的不同，非网络异常
@@ -78,7 +77,7 @@ namespace ET {
             // 4. 将服务器返回的房间服务器列表存入组件中
             foreach (var serverInfoProto in a2C_GetServerInfo.ServerInfosList) {
                 // 加载到 ServerInfosComponent 上
-                ServerInfo serverInfo = zoneScene.GetComponent<ServerInfosComponent>().AddChild(ServerInfo);
+                ServerInfo serverInfo = zoneScene.GetComponent<ServerInfosComponent>().AddChild<ServerInfo>();
                 serverInfo.FromMessage(serverInfoProto);
                 zoneScene.GetComponent<ServerInfosComponent>().Add(serverInfo);
             }

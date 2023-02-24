@@ -1,16 +1,18 @@
+using System;
+
 namespace ET {
     // LoginAccount处理函数有两个结果
     // 1.不存在该用户，那么我们应该将它记录到我们的LoginAccount的字典里面
     // 2.如果存在用户，那么就拿到它的Gate网关地址，向Gate网关发消息，让玩家下线
-    [ActorMessageHandler]
-    public class A2L_LoginAccountRequestHandler : AMActorRpcHandler<A2L_LoginAccountRequest, L2A_LoginAccountResponse> {
+    [ActorMessageHandler]  // 下面的两个协议要自己补上 proto 里面的
+    public class A2L_LoginAccountRequestHandler : AMActorRpcHandler<Scene, A2L_LoginAccountRequest, L2A_LoginAccountResponse> {
         protected override async ETTask Run(Scene scene, A2L_LoginAccountRequest request, L2A_LoginAccountResponse response, Action reply) {
             // 1. 拿到 accountId
             long accountId = request.AccountId;
             // 2. 开启协程锁；它把协程锁添加了一个类型，那么就需要去补上
             using (await CoroutineLockComponent.Instance.Wait(CoroutineLockType.LoginCenterLock, accountId.GetHashCode())) {
                 // 3. 如果在注册登录服不存在当前用户的信息，就表示可以登录（要是还没有注册呢？）
-                if (!scene.GetComponent<LoginInfoRecordComponent>().IsExist(accountId)) {
+                if (!scene.GetComponent<LoginInfoRecordComponent>().IsExist(accountId)) { // 这个类没有，需要重新定义生成一下
                     // TODO: 添加用户到 LoginAccount 里面
                     response.Error = ErrorCode.ERR_Success;
                     reply();

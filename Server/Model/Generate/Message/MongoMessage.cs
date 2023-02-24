@@ -21,7 +21,6 @@ namespace ET
 
 	}
 
-	[ResponseType(nameof(M2M_UnitTransferResponse))]
 	[Message(MongoOpcode.M2M_UnitTransferRequest)]
 	[ProtoContract]
 	public partial class M2M_UnitTransferRequest: Object, IActorRequest

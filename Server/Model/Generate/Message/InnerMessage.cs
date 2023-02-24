@@ -3,7 +3,33 @@ using ProtoBuf;
 using System.Collections.Generic;
 namespace ET
 {
-	[ResponseType(nameof(ObjectQueryResponse))]
+	[Message(InnerOpcode.L2G_DisconnectGateUnit)]
+	[ProtoContract]
+	public partial class L2G_DisconnectGateUnit: Object, IActorRequest
+	{
+		[ProtoMember(90)]
+		public int RpcId { get; set; }
+
+		[ProtoMember(1)]
+		public long AccountId { get; set; }
+
+	}
+
+	[Message(InnerOpcode.G2L_DisconnectGateUnit)]
+	[ProtoContract]
+	public partial class G2L_DisconnectGateUnit: Object, IActorResponse
+	{
+		[ProtoMember(90)]
+		public int RpcId { get; set; }
+
+		[ProtoMember(1)]
+		public int Error { get; set; }
+
+		[ProtoMember(2)]
+		public string Message { get; set; }
+
+	}
+
 	[Message(InnerOpcode.ObjectQueryRequest)]
 	[ProtoContract]
 	public partial class ObjectQueryRequest: Object, IActorRequest
@@ -19,7 +45,6 @@ namespace ET
 
 	}
 
-	[ResponseType(nameof(A2M_Reload))]
 	[Message(InnerOpcode.M2A_Reload)]
 	[ProtoContract]
 	public partial class M2A_Reload: Object, IActorRequest
@@ -44,7 +69,6 @@ namespace ET
 
 	}
 
-	[ResponseType(nameof(G2G_LockResponse))]
 	[Message(InnerOpcode.G2G_LockRequest)]
 	[ProtoContract]
 	public partial class G2G_LockRequest: Object, IActorRequest
@@ -75,7 +99,6 @@ namespace ET
 
 	}
 
-	[ResponseType(nameof(G2G_LockReleaseResponse))]
 	[Message(InnerOpcode.G2G_LockReleaseRequest)]
 	[ProtoContract]
 	public partial class G2G_LockReleaseRequest: Object, IActorRequest
@@ -106,7 +129,6 @@ namespace ET
 
 	}
 
-	[ResponseType(nameof(ObjectAddResponse))]
 	[Message(InnerOpcode.ObjectAddRequest)]
 	[ProtoContract]
 	public partial class ObjectAddRequest: Object, IActorRequest
@@ -137,7 +159,6 @@ namespace ET
 
 	}
 
-	[ResponseType(nameof(ObjectLockResponse))]
 	[Message(InnerOpcode.ObjectLockRequest)]
 	[ProtoContract]
 	public partial class ObjectLockRequest: Object, IActorRequest
@@ -171,7 +192,6 @@ namespace ET
 
 	}
 
-	[ResponseType(nameof(ObjectUnLockResponse))]
 	[Message(InnerOpcode.ObjectUnLockRequest)]
 	[ProtoContract]
 	public partial class ObjectUnLockRequest: Object, IActorRequest
@@ -205,7 +225,6 @@ namespace ET
 
 	}
 
-	[ResponseType(nameof(ObjectRemoveResponse))]
 	[Message(InnerOpcode.ObjectRemoveRequest)]
 	[ProtoContract]
 	public partial class ObjectRemoveRequest: Object, IActorRequest
@@ -233,7 +252,6 @@ namespace ET
 
 	}
 
-	[ResponseType(nameof(ObjectGetResponse))]
 	[Message(InnerOpcode.ObjectGetRequest)]
 	[ProtoContract]
 	public partial class ObjectGetRequest: Object, IActorRequest
@@ -264,7 +282,6 @@ namespace ET
 
 	}
 
-	[ResponseType(nameof(G2R_GetLoginKey))]
 	[Message(InnerOpcode.R2G_GetLoginKey)]
 	[ProtoContract]
 	public partial class R2G_GetLoginKey: Object, IActorRequest

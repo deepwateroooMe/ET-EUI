@@ -1,6 +1,22 @@
 syntax = "proto3";
 package ET;
 
+//ResponseType L2A_LoginAccountResponse
+message A2L_LoginAccountRequest // IActorLocationRequest
+{
+	int32 RpcId = 90;
+	int64  AccountId = 1;  // 帐号
+	string  Password = 2;  // 密码
+}
+message L2A_LoginAccountResponse // IActorLocationResponse
+{
+	int32 RpcId = 90;
+	int32 Error = 91;
+	string Message = 92;
+	string Address = 1;
+	int64 Key = 2;
+	int64 GateId = 3;
+}
 message ServerInfoProto
 {
     int32 Id = 1;
@@ -8,13 +24,13 @@ message ServerInfoProto
     string ServerName = 3;
 }
 //ResponseType A2C_GetServerInfos
-message C2A_GetServerInfos //IRequest
+message C2A_GetServerInfos // IRequest
 {
     int32 RpcId = 90;
     string Token = 1;
     int64 AccountId = 2;
 }
-message A2C_GetServerInfos //IResponse
+message A2C_GetServerInfos // IResponse
 {
     int32 RpcId = 90;
     int32 Error = 91;
@@ -43,19 +59,19 @@ message M2C_TestActorMessage // IActorMessage
 {
     string Content = 1;
 }
-message A2C_Disconnect //IMessage
+message A2C_Disconnect // IMessage
 {
     int32 Error = 1;
 }
 
-// ResponseType A2C_LoginAccount
-message C2A_LoginAccount //IRequest
+//ResponseType A2C_LoginAccount
+message C2A_LoginAccount // IRequest
 {
     int32 RpcId = 90;
     string AccountName = 1;
     string Password = 2;
 }
-message A2C_LoginAccount //IResponse
+message A2C_LoginAccount // IResponse
 {
     int32 RpcId = 90;
     int32 Error = 91;
