@@ -50,7 +50,6 @@
   - await关键字后跟一些表达式(一般是返回值为ETTask的函数)，在异步函数运行到此时会立即跳出函数，继续执行原逻辑。
   - await返回前会做出保证，保证await后表达式的任务完成后，执行点会跳回异步函数中，继续向后执行剩余代码
   - 若await后表达式正常返回，可用变量接收表达式的返回值，表达式的返回值类型为定义表达式ETTask<>的泛型
-
 * 小小服务器：要怎么才能开始动手试图去实现这个小服务器呢？
 ** 如果适配ET框架，现游戏可能哪些模块版块存在问题
 - 我也觉得ET框架可能不太适合我现在的游戏（也就是说，把我的游戏完全适配成ET框架来开发，原本只需要一个小小服务器，完全适配为ET框架，就把问题弄得狠复杂了。。。），
@@ -59,7 +58,6 @@
   - ET里有个检测鼠标左右键位置的帮助类,但跟射线检测应该还是相差狠远的.而游戏场景里面有一个OperaCompoent，这个组件会实时监听按键的点击并且将点击的位置发送给服务器，服务器再传送回客户端
 - 所以,现在对这个框架,最深的感触是:盲人摸象,摸每部分细节似乎都快清楚了,却无法组装从一个更高的层面上来理解和把握框架设计,无法吃透,在大框架功能模块上犯难,在网上再搜一搜
 - 我可以把两组按钮画面同样做成预设与热更新资源包，射线检测同样会成为可装载可卸载的组件，可是再后面射线检测到的物体逻辑，感觉有点儿复杂了
--  
 ** 如果不适配，怎么弄个服务器带数据库等逻辑？
 - 使用部分共享源码的双端（共享的是文件服务器8个项目，MongoDB数据库服务器， Realm注册登录用，网关服，Location服， ETTAsk， RPC消息机制， NetComponent等自己机对陌生需要练习，而自己的服务器也不可缺省的相关功能）
 - 现在知道自己整的不沦不类的服务器所谓的登录，登录的是网页上的认证相关，跟自己真正要实现的游戏里注册登录服保存数据库完全两回事，现在知道了。
@@ -75,40 +73,15 @@
 - 如果简单一点儿开始，我觉得我应该是可以先把简单点儿的MongoDB数据库连接成功，把用户登录相关的逻辑，网络交互的部分，ETTask RPC ACTOR消息等，哪怕是复制，把这部分弄过去
 ** ET框架
 - 上次看看得不是狠懂，这次再看，至少是觉得UI的逻辑处理，作者的观点更自然真实一些，放在一个文件一起处理，个人认为更好,而不是折分成为几个文件 
-  #+BEGIN_SRC csharp
-class LoginState:State{
-	void OnEnter(){
-		UI.Show()
-	}
-	void OnLeave(){
-		UI.Hide()
-	}
-}
-  #+END_SRC
 * 登录协议流程
 - 因为登录协议是客户端与服务器通信的，不属于服务器内部协议，所以打开OuterMessage.proto，里面存放的都是客户端与服务器通信定义的协议数据。
 - 比如定义如下，登录协议：
-#+BEGIN_SRC csharp
-message C2G_LoginGate // IRequest
-{
-	int32 RpcId = 90;
-	int64 Key = 1;	// 帐号
-}
-message G2C_LoginGate // IResponse
-{
-	int32 RpcId = 90;
-	int32 Error = 91;
-	string Message = 92;
-	int64 PlayerId = 1;
-}
-#+END_SRC
 - emacs里org-mode exporte-to-pdf希望有个latex选择可以自动将^I转化为空格，而不是这种字符，晚点儿再弄这个
 - 注意点： *没有意识到像是注释一样的片段，这个协议里，会成为标注或是标签*
   - 1.因为登录是请求-响应类型协议（即发送一条数据，并期望返回一条数据），所以注意对应C2R_Login协议带有“//ResponseType R2C_Login”标志，在生成协议时，用于标记这个C2R_Login请求对应的响应类型为R2C_Login
   - 2.因为请求是直接发送给realm服的，所以是普通的IRequest类型协议，标记为IRequest
   - 3.R2C_Login回复类消息结构，因为是Realm服发送给客户端的，因此是一个普通IResponse
   - 4.注意两个协议类里面都有RpcId，主要用于发送请求-响应类消息时，发送将自己的RpcID发送出去，返回时带回这个值，用于发送方接受到返回协议时，可以找到对应的是哪一个请求协议返回来的。
-
 * 一步一步的进展
 - 首先，把斗地方大厅改写为游戏主菜单的三个选项(如果我只想用ET的头，它的头太大了，还是要自己弄个小小的头，小小的服务器，所以暂时就还是考虑自己从头实现一个MongoDB的小小服务器比较容易一点儿，不懂的就翻ET)
   
@@ -152,63 +125,6 @@ namespace ETHotfix {
     - *服务器又是如何处理下载逻辑的？* 它是存放在服务器上的某个目录，它是用UnityWebRequestAsync将目录中特定的文件下载到本地的
     - 下面的，因为服务器是简单地将资源包存放在某个目录下，小文件服务器没有涉及任何的不涉及数据库存储，所以逻辑狠简单。下面的用不上
       - MongoDB数据库是可以下载文件的，看见一个网络上的小例子：可以成为自己的一个参考：https://blog.csdn.net/y526089989/article/details/94452268?spm=1001.2101.3001.6650.15&utm_medium=distribute.pc_relevant.none-task-blog-2%7Edefault%7EBlogCommendFromBaidu%7ERate-15-94452268-blog-102048135.pc_relevant_3mothn_strategy_and_data_recovery&depth_1-utm_source=distribute.pc_relevant.none-task-blog-2%7Edefault%7EBlogCommendFromBaidu%7ERate-15-94452268-blog-102048135.pc_relevant_3mothn_strategy_and_data_recovery&utm_relevant_index=16
-      #+BEGIN_SRC csharp
-using MongoDB.Bson;
-using MongoDB.Driver;
-using MongoDB.Driver.GridFS;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-namespace ESRTools
-{
-    public class MongoHelper
-    {
-        private static GridFSBucket bucket;
- 
-        ///新版本方式 旧的不一样
-        public static IMongoDatabase GetDatabase()
-        {
-            //mongodb://user:pwd@127.0.0.1:2222/db
-            string connectionString = "mongodb://user:pwd@127.0.0.1:2222";
-            string dbName = "dbName";
-            // or use a connection string
-            var client = new MongoClient(connectionString);
-            // or, to connect to a replica set, with auto-discovery of the primary, supply a seed list of members
-            // var client = new MongoClient("mongodb://localhost:27017,localhost:27018,localhost:27019");
-            return client.GetDatabase(dbName);
-        }
-        public static void DownFile()
-        {
-            bucket = new GridFSBucket(GetDatabase()); // <<<<<<<<<<<<<<<<<<<< 
-            var fileid = new ObjectId("");
-            bucket.DownloadAsBytes(fileid);
-        }
-        public static  ObjectId GetUploadFileId(string fileName)
-        {
-            bucket = new GridFSBucket(GetDatabase());
-            var filter = Builders<GridFSFileInfo>.Filter.Eq(x => x.Filename, fileName);
-            //eq方法，就是等于，还有其他的方法，具体看Mongo的api文档
-            var sort = Builders<GridFSFileInfo>.Sort.Descending(x => x.UploadDateTime);
-            //按上传时间来倒叙一下
-            var options = new GridFSFindOptions
-            {
-                Limit = 1,
-                Sort = sort
-            };
-            using (var cursor = bucket.Find(filter, options))
-            {
-                var fileInfo = cursor.ToList().FirstOrDefault();
-                if (fileInfo != null && fileInfo.Length > 0)
-                {
-                    return fileInfo.Id;
-                }
-                return new ObjectId();
-            }
-        }
-}
-      #+END_SRC
 - *protobuf进程间消息传递协议:* 加进来。Protocol Buffers 是一种轻便高效的结构化数据存储格式，可以用于结构化数据串行化，或者说序列化。它很适合做数据存储或 RPC 数据交换格式。可用于通讯协议、数据存储等领域的语言无关、平台无关、可扩展的序列化结构数据格式。
 - TODO：如何把ET的头，关于ETTask异步包装的网络请求,关于新用户注册并保存用户信息进MongoDB数据库，用户登录，用户信息提取等，以最精简的方式整合到这里面来作为自己的小小服务器.
 - 那么这个服务器仍然会是一个双端服务器？就是说服务器上也包括了12个项目。服务器的资源包从unity里打，并直接到服务器的指定位置？
@@ -234,6 +150,7 @@ namespace ESRTools
 - 以前写个多人游戏，感觉是难于上青天，看见别人的job description等都怕，但是现在是网上找个底稿，修修改改就好，就能变成为自己的理解与消化狠容易的事
 - 可能现在这个多功能太多项目12个项目的ET热更新框架对我还没有理解透彻网络异步调用来说稍微难了一点儿.可以试着先写一两个不带热更新的多人网络游戏，再回头来再次理解消化这个框架.
 - 现在最不喜欢emacs 28.1里的各种bug,让我iterm2（本来也还没有花时间配置好）狠难用，也不想用emacs.先在网上抽搜搜，安装一个27.1不带没有bug的版本使用.然后写一两个不带热更新的小游戏，再来完成这个热更新框架.
+
 
 * ET 框架的大结构梳理
 - 可以把服务器端的启动，客户端的启动，加载的主要模块，为什么分别需要加载这些模块再看一遍，必要的原理再看一下，希望能弄得再明白一点儿
@@ -264,4 +181,484 @@ namespace ESRTools
     
 [[./pic/readme_20230223_273227.png]]
 - 现在它可以构建成功了，晚上回家会好好测试一下。
-- 爱表哥，爱生活！！！活宝妹就是一定要嫁给亲爱的表哥。爱表哥，爱生活！！！
+* 服务器端的日志，记一下：明天白天可以看一下是怎么回事，这个框架 ET-EUI ？
+  #+BEGIN_SRC text
+2023-02-25 20:34:10.3272 not found responseType: ET.L2G_DisconnectGateUnit
+   at ET.OpcodeTypeComponentSystem.OpcodeTypeComponentAwakeSystem.Awake(OpcodeTypeComponent self) in F:\ET-EUI\Unity\Codes\Model\Module\Message\OpcodeTypeComponent.cs:line 56
+   at ET.AwakeSystem`1.Run(Object o) in F:\ET-EUI\Unity\Codes\Model\Core\Object\IAwakeSystem.cs:line 65
+   at ET.EventSystem.Awake(Entity component) in F:\ET-EUI\Unity\Codes\Model\Core\Object\EventSystem.cs:line 363
+   at ET.Entity.AddComponent[K](Boolean isFromPool) in F:\ET-EUI\Unity\Codes\Model\Core\Object\Entity.cs:line 570
+   at ET.AppStart_Init.RunAsync(AppStart args) in F:\ET-EUI\Server\Hotfix\AppStart_Init.cs:line 14
+   at ET.ETTask.SetResult() in F:\ET-EUI\Unity\Assets\ThirdParty\ETTask\ETTask.cs:line 144
+   at ET.ETAsyncTaskMethodBuilder.SetResult() in F:\ET-EUI\Unity\Assets\ThirdParty\ETTask\AsyncETTaskMethodBuilder.cs:line 35
+   at ET.ConfigComponentSystem.LoadAsync(ConfigComponent self) in F:\ET-EUI\Unity\Codes\Hotfix\Module\Config\ConfigComponentSystem.cs:line 69
+   at System.Runtime.CompilerServices.TaskAwaiter.<>c.<OutputWaitEtwEvents>b__12_0(Action innerContinuation, Task innerTask)
+   at System.Runtime.CompilerServices.AsyncMethodBuilderCore.ContinuationWrapper.Invoke()
+   at System.Threading.Tasks.SynchronizationContextAwaitTaskContinuation.<>c__DisplayClass6_0.<GetActionLogDelegate>b__0()
+   at System.Threading.Tasks.SynchronizationContextAwaitTaskContinuation.<>c.<.cctor>b__8_0(Object state)
+   at ET.ThreadSynchronizationContext.<>c__DisplayClass8_0.<Post>b__0() in F:\ET-EUI\Unity\Assets\Mono\Core\ThreadSynchronizationContext.cs:line 45
+   at ET.ThreadSynchronizationContext.Update() in F:\ET-EUI\Unity\Assets\Mono\Core\ThreadSynchronizationContext.cs:line 34
+   at ET.Game.Update() in F:\ET-EUI\Unity\Codes\Model\Core\Entity\Game.cs:line 38
+   at ET.Program.Main(String[] args) in F:\ET-EUI\Server\App\Program.cs:line 50
+
+2023-02-25 20:34:10.3272 not found responseType: ET.ObjectQueryRequest
+   at ET.OpcodeTypeComponentSystem.OpcodeTypeComponentAwakeSystem.Awake(OpcodeTypeComponent self) in F:\ET-EUI\Unity\Codes\Model\Module\Message\OpcodeTypeComponent.cs:line 56
+   at ET.AwakeSystem`1.Run(Object o) in F:\ET-EUI\Unity\Codes\Model\Core\Object\IAwakeSystem.cs:line 65
+   at ET.EventSystem.Awake(Entity component) in F:\ET-EUI\Unity\Codes\Model\Core\Object\EventSystem.cs:line 363
+   at ET.Entity.AddComponent[K](Boolean isFromPool) in F:\ET-EUI\Unity\Codes\Model\Core\Object\Entity.cs:line 570
+   at ET.AppStart_Init.RunAsync(AppStart args) in F:\ET-EUI\Server\Hotfix\AppStart_Init.cs:line 14
+   at ET.ETTask.SetResult() in F:\ET-EUI\Unity\Assets\ThirdParty\ETTask\ETTask.cs:line 144
+   at ET.ETAsyncTaskMethodBuilder.SetResult() in F:\ET-EUI\Unity\Assets\ThirdParty\ETTask\AsyncETTaskMethodBuilder.cs:line 35
+   at ET.ConfigComponentSystem.LoadAsync(ConfigComponent self) in F:\ET-EUI\Unity\Codes\Hotfix\Module\Config\ConfigComponentSystem.cs:line 69
+   at System.Runtime.CompilerServices.TaskAwaiter.<>c.<OutputWaitEtwEvents>b__12_0(Action innerContinuation, Task innerTask)
+   at System.Runtime.CompilerServices.AsyncMethodBuilderCore.ContinuationWrapper.Invoke()
+   at System.Threading.Tasks.SynchronizationContextAwaitTaskContinuation.<>c__DisplayClass6_0.<GetActionLogDelegate>b__0()
+   at System.Threading.Tasks.SynchronizationContextAwaitTaskContinuation.<>c.<.cctor>b__8_0(Object state)
+   at ET.ThreadSynchronizationContext.<>c__DisplayClass8_0.<Post>b__0() in F:\ET-EUI\Unity\Assets\Mono\Core\ThreadSynchronizationContext.cs:line 45
+   at ET.ThreadSynchronizationContext.Update() in F:\ET-EUI\Unity\Assets\Mono\Core\ThreadSynchronizationContext.cs:line 34
+   at ET.Game.Update() in F:\ET-EUI\Unity\Codes\Model\Core\Entity\Game.cs:line 38
+   at ET.Program.Main(String[] args) in F:\ET-EUI\Server\App\Program.cs:line 50
+
+2023-02-25 20:34:10.3272 not found responseType: ET.M2A_Reload
+   at ET.OpcodeTypeComponentSystem.OpcodeTypeComponentAwakeSystem.Awake(OpcodeTypeComponent self) in F:\ET-EUI\Unity\Codes\Model\Module\Message\OpcodeTypeComponent.cs:line 56
+   at ET.AwakeSystem`1.Run(Object o) in F:\ET-EUI\Unity\Codes\Model\Core\Object\IAwakeSystem.cs:line 65
+   at ET.EventSystem.Awake(Entity component) in F:\ET-EUI\Unity\Codes\Model\Core\Object\EventSystem.cs:line 363
+   at ET.Entity.AddComponent[K](Boolean isFromPool) in F:\ET-EUI\Unity\Codes\Model\Core\Object\Entity.cs:line 570
+   at ET.AppStart_Init.RunAsync(AppStart args) in F:\ET-EUI\Server\Hotfix\AppStart_Init.cs:line 14
+   at ET.ETTask.SetResult() in F:\ET-EUI\Unity\Assets\ThirdParty\ETTask\ETTask.cs:line 144
+   at ET.ETAsyncTaskMethodBuilder.SetResult() in F:\ET-EUI\Unity\Assets\ThirdParty\ETTask\AsyncETTaskMethodBuilder.cs:line 35
+   at ET.ConfigComponentSystem.LoadAsync(ConfigComponent self) in F:\ET-EUI\Unity\Codes\Hotfix\Module\Config\ConfigComponentSystem.cs:line 69
+   at System.Runtime.CompilerServices.TaskAwaiter.<>c.<OutputWaitEtwEvents>b__12_0(Action innerContinuation, Task innerTask)
+   at System.Runtime.CompilerServices.AsyncMethodBuilderCore.ContinuationWrapper.Invoke()
+   at System.Threading.Tasks.SynchronizationContextAwaitTaskContinuation.<>c__DisplayClass6_0.<GetActionLogDelegate>b__0()
+   at System.Threading.Tasks.SynchronizationContextAwaitTaskContinuation.<>c.<.cctor>b__8_0(Object state)
+   at ET.ThreadSynchronizationContext.<>c__DisplayClass8_0.<Post>b__0() in F:\ET-EUI\Unity\Assets\Mono\Core\ThreadSynchronizationContext.cs:line 45
+   at ET.ThreadSynchronizationContext.Update() in F:\ET-EUI\Unity\Assets\Mono\Core\ThreadSynchronizationContext.cs:line 34
+   at ET.Game.Update() in F:\ET-EUI\Unity\Codes\Model\Core\Entity\Game.cs:line 38
+   at ET.Program.Main(String[] args) in F:\ET-EUI\Server\App\Program.cs:line 50
+
+2023-02-25 20:34:10.3272 not found responseType: ET.G2G_LockRequest
+   at ET.OpcodeTypeComponentSystem.OpcodeTypeComponentAwakeSystem.Awake(OpcodeTypeComponent self) in F:\ET-EUI\Unity\Codes\Model\Module\Message\OpcodeTypeComponent.cs:line 56
+   at ET.AwakeSystem`1.Run(Object o) in F:\ET-EUI\Unity\Codes\Model\Core\Object\IAwakeSystem.cs:line 65
+   at ET.EventSystem.Awake(Entity component) in F:\ET-EUI\Unity\Codes\Model\Core\Object\EventSystem.cs:line 363
+   at ET.Entity.AddComponent[K](Boolean isFromPool) in F:\ET-EUI\Unity\Codes\Model\Core\Object\Entity.cs:line 570
+   at ET.AppStart_Init.RunAsync(AppStart args) in F:\ET-EUI\Server\Hotfix\AppStart_Init.cs:line 14
+   at ET.ETTask.SetResult() in F:\ET-EUI\Unity\Assets\ThirdParty\ETTask\ETTask.cs:line 144
+   at ET.ETAsyncTaskMethodBuilder.SetResult() in F:\ET-EUI\Unity\Assets\ThirdParty\ETTask\AsyncETTaskMethodBuilder.cs:line 35
+   at ET.ConfigComponentSystem.LoadAsync(ConfigComponent self) in F:\ET-EUI\Unity\Codes\Hotfix\Module\Config\ConfigComponentSystem.cs:line 69
+   at System.Runtime.CompilerServices.TaskAwaiter.<>c.<OutputWaitEtwEvents>b__12_0(Action innerContinuation, Task innerTask)
+   at System.Runtime.CompilerServices.AsyncMethodBuilderCore.ContinuationWrapper.Invoke()
+   at System.Threading.Tasks.SynchronizationContextAwaitTaskContinuation.<>c__DisplayClass6_0.<GetActionLogDelegate>b__0()
+   at System.Threading.Tasks.SynchronizationContextAwaitTaskContinuation.<>c.<.cctor>b__8_0(Object state)
+   at ET.ThreadSynchronizationContext.<>c__DisplayClass8_0.<Post>b__0() in F:\ET-EUI\Unity\Assets\Mono\Core\ThreadSynchronizationContext.cs:line 45
+   at ET.ThreadSynchronizationContext.Update() in F:\ET-EUI\Unity\Assets\Mono\Core\ThreadSynchronizationContext.cs:line 34
+   at ET.Game.Update() in F:\ET-EUI\Unity\Codes\Model\Core\Entity\Game.cs:line 38
+   at ET.Program.Main(String[] args) in F:\ET-EUI\Server\App\Program.cs:line 50
+
+2023-02-25 20:34:10.3272 not found responseType: ET.G2G_LockReleaseRequest
+   at ET.OpcodeTypeComponentSystem.OpcodeTypeComponentAwakeSystem.Awake(OpcodeTypeComponent self) in F:\ET-EUI\Unity\Codes\Model\Module\Message\OpcodeTypeComponent.cs:line 56
+   at ET.AwakeSystem`1.Run(Object o) in F:\ET-EUI\Unity\Codes\Model\Core\Object\IAwakeSystem.cs:line 65
+   at ET.EventSystem.Awake(Entity component) in F:\ET-EUI\Unity\Codes\Model\Core\Object\EventSystem.cs:line 363
+   at ET.Entity.AddComponent[K](Boolean isFromPool) in F:\ET-EUI\Unity\Codes\Model\Core\Object\Entity.cs:line 570
+   at ET.AppStart_Init.RunAsync(AppStart args) in F:\ET-EUI\Server\Hotfix\AppStart_Init.cs:line 14
+   at ET.ETTask.SetResult() in F:\ET-EUI\Unity\Assets\ThirdParty\ETTask\ETTask.cs:line 144
+   at ET.ETAsyncTaskMethodBuilder.SetResult() in F:\ET-EUI\Unity\Assets\ThirdParty\ETTask\AsyncETTaskMethodBuilder.cs:line 35
+   at ET.ConfigComponentSystem.LoadAsync(ConfigComponent self) in F:\ET-EUI\Unity\Codes\Hotfix\Module\Config\ConfigComponentSystem.cs:line 69
+   at System.Runtime.CompilerServices.TaskAwaiter.<>c.<OutputWaitEtwEvents>b__12_0(Action innerContinuation, Task innerTask)
+   at System.Runtime.CompilerServices.AsyncMethodBuilderCore.ContinuationWrapper.Invoke()
+   at System.Threading.Tasks.SynchronizationContextAwaitTaskContinuation.<>c__DisplayClass6_0.<GetActionLogDelegate>b__0()
+   at System.Threading.Tasks.SynchronizationContextAwaitTaskContinuation.<>c.<.cctor>b__8_0(Object state)
+   at ET.ThreadSynchronizationContext.<>c__DisplayClass8_0.<Post>b__0() in F:\ET-EUI\Unity\Assets\Mono\Core\ThreadSynchronizationContext.cs:line 45
+   at ET.ThreadSynchronizationContext.Update() in F:\ET-EUI\Unity\Assets\Mono\Core\ThreadSynchronizationContext.cs:line 34
+   at ET.Game.Update() in F:\ET-EUI\Unity\Codes\Model\Core\Entity\Game.cs:line 38
+   at ET.Program.Main(String[] args) in F:\ET-EUI\Server\App\Program.cs:line 50
+
+2023-02-25 20:34:10.3272 not found responseType: ET.ObjectAddRequest
+   at ET.OpcodeTypeComponentSystem.OpcodeTypeComponentAwakeSystem.Awake(OpcodeTypeComponent self) in F:\ET-EUI\Unity\Codes\Model\Module\Message\OpcodeTypeComponent.cs:line 56
+   at ET.AwakeSystem`1.Run(Object o) in F:\ET-EUI\Unity\Codes\Model\Core\Object\IAwakeSystem.cs:line 65
+   at ET.EventSystem.Awake(Entity component) in F:\ET-EUI\Unity\Codes\Model\Core\Object\EventSystem.cs:line 363
+   at ET.Entity.AddComponent[K](Boolean isFromPool) in F:\ET-EUI\Unity\Codes\Model\Core\Object\Entity.cs:line 570
+   at ET.AppStart_Init.RunAsync(AppStart args) in F:\ET-EUI\Server\Hotfix\AppStart_Init.cs:line 14
+   at ET.ETTask.SetResult() in F:\ET-EUI\Unity\Assets\ThirdParty\ETTask\ETTask.cs:line 144
+   at ET.ETAsyncTaskMethodBuilder.SetResult() in F:\ET-EUI\Unity\Assets\ThirdParty\ETTask\AsyncETTaskMethodBuilder.cs:line 35
+   at ET.ConfigComponentSystem.LoadAsync(ConfigComponent self) in F:\ET-EUI\Unity\Codes\Hotfix\Module\Config\ConfigComponentSystem.cs:line 69
+   at System.Runtime.CompilerServices.TaskAwaiter.<>c.<OutputWaitEtwEvents>b__12_0(Action innerContinuation, Task innerTask)
+   at System.Runtime.CompilerServices.AsyncMethodBuilderCore.ContinuationWrapper.Invoke()
+   at System.Threading.Tasks.SynchronizationContextAwaitTaskContinuation.<>c__DisplayClass6_0.<GetActionLogDelegate>b__0()
+   at System.Threading.Tasks.SynchronizationContextAwaitTaskContinuation.<>c.<.cctor>b__8_0(Object state)
+   at ET.ThreadSynchronizationContext.<>c__DisplayClass8_0.<Post>b__0() in F:\ET-EUI\Unity\Assets\Mono\Core\ThreadSynchronizationContext.cs:line 45
+   at ET.ThreadSynchronizationContext.Update() in F:\ET-EUI\Unity\Assets\Mono\Core\ThreadSynchronizationContext.cs:line 34
+   at ET.Game.Update() in F:\ET-EUI\Unity\Codes\Model\Core\Entity\Game.cs:line 38
+   at ET.Program.Main(String[] args) in F:\ET-EUI\Server\App\Program.cs:line 50
+
+2023-02-25 20:34:10.3272 not found responseType: ET.ObjectLockRequest
+   at ET.OpcodeTypeComponentSystem.OpcodeTypeComponentAwakeSystem.Awake(OpcodeTypeComponent self) in F:\ET-EUI\Unity\Codes\Model\Module\Message\OpcodeTypeComponent.cs:line 56
+   at ET.AwakeSystem`1.Run(Object o) in F:\ET-EUI\Unity\Codes\Model\Core\Object\IAwakeSystem.cs:line 65
+   at ET.EventSystem.Awake(Entity component) in F:\ET-EUI\Unity\Codes\Model\Core\Object\EventSystem.cs:line 363
+   at ET.Entity.AddComponent[K](Boolean isFromPool) in F:\ET-EUI\Unity\Codes\Model\Core\Object\Entity.cs:line 570
+   at ET.AppStart_Init.RunAsync(AppStart args) in F:\ET-EUI\Server\Hotfix\AppStart_Init.cs:line 14
+   at ET.ETTask.SetResult() in F:\ET-EUI\Unity\Assets\ThirdParty\ETTask\ETTask.cs:line 144
+   at ET.ETAsyncTaskMethodBuilder.SetResult() in F:\ET-EUI\Unity\Assets\ThirdParty\ETTask\AsyncETTaskMethodBuilder.cs:line 35
+   at ET.ConfigComponentSystem.LoadAsync(ConfigComponent self) in F:\ET-EUI\Unity\Codes\Hotfix\Module\Config\ConfigComponentSystem.cs:line 69
+   at System.Runtime.CompilerServices.TaskAwaiter.<>c.<OutputWaitEtwEvents>b__12_0(Action innerContinuation, Task innerTask)
+   at System.Runtime.CompilerServices.AsyncMethodBuilderCore.ContinuationWrapper.Invoke()
+   at System.Threading.Tasks.SynchronizationContextAwaitTaskContinuation.<>c__DisplayClass6_0.<GetActionLogDelegate>b__0()
+   at System.Threading.Tasks.SynchronizationContextAwaitTaskContinuation.<>c.<.cctor>b__8_0(Object state)
+   at ET.ThreadSynchronizationContext.<>c__DisplayClass8_0.<Post>b__0() in F:\ET-EUI\Unity\Assets\Mono\Core\ThreadSynchronizationContext.cs:line 45
+   at ET.ThreadSynchronizationContext.Update() in F:\ET-EUI\Unity\Assets\Mono\Core\ThreadSynchronizationContext.cs:line 34
+   at ET.Game.Update() in F:\ET-EUI\Unity\Codes\Model\Core\Entity\Game.cs:line 38
+   at ET.Program.Main(String[] args) in F:\ET-EUI\Server\App\Program.cs:line 50
+
+2023-02-25 20:34:10.3272 not found responseType: ET.ObjectUnLockRequest
+   at ET.OpcodeTypeComponentSystem.OpcodeTypeComponentAwakeSystem.Awake(OpcodeTypeComponent self) in F:\ET-EUI\Unity\Codes\Model\Module\Message\OpcodeTypeComponent.cs:line 56
+   at ET.AwakeSystem`1.Run(Object o) in F:\ET-EUI\Unity\Codes\Model\Core\Object\IAwakeSystem.cs:line 65
+   at ET.EventSystem.Awake(Entity component) in F:\ET-EUI\Unity\Codes\Model\Core\Object\EventSystem.cs:line 363
+   at ET.Entity.AddComponent[K](Boolean isFromPool) in F:\ET-EUI\Unity\Codes\Model\Core\Object\Entity.cs:line 570
+   at ET.AppStart_Init.RunAsync(AppStart args) in F:\ET-EUI\Server\Hotfix\AppStart_Init.cs:line 14
+   at ET.ETTask.SetResult() in F:\ET-EUI\Unity\Assets\ThirdParty\ETTask\ETTask.cs:line 144
+   at ET.ETAsyncTaskMethodBuilder.SetResult() in F:\ET-EUI\Unity\Assets\ThirdParty\ETTask\AsyncETTaskMethodBuilder.cs:line 35
+   at ET.ConfigComponentSystem.LoadAsync(ConfigComponent self) in F:\ET-EUI\Unity\Codes\Hotfix\Module\Config\ConfigComponentSystem.cs:line 69
+   at System.Runtime.CompilerServices.TaskAwaiter.<>c.<OutputWaitEtwEvents>b__12_0(Action innerContinuation, Task innerTask)
+   at System.Runtime.CompilerServices.AsyncMethodBuilderCore.ContinuationWrapper.Invoke()
+   at System.Threading.Tasks.SynchronizationContextAwaitTaskContinuation.<>c__DisplayClass6_0.<GetActionLogDelegate>b__0()
+   at System.Threading.Tasks.SynchronizationContextAwaitTaskContinuation.<>c.<.cctor>b__8_0(Object state)
+   at ET.ThreadSynchronizationContext.<>c__DisplayClass8_0.<Post>b__0() in F:\ET-EUI\Unity\Assets\Mono\Core\ThreadSynchronizationContext.cs:line 45
+   at ET.ThreadSynchronizationContext.Update() in F:\ET-EUI\Unity\Assets\Mono\Core\ThreadSynchronizationContext.cs:line 34
+   at ET.Game.Update() in F:\ET-EUI\Unity\Codes\Model\Core\Entity\Game.cs:line 38
+   at ET.Program.Main(String[] args) in F:\ET-EUI\Server\App\Program.cs:line 50
+
+2023-02-25 20:34:10.3272 not found responseType: ET.ObjectRemoveRequest
+   at ET.OpcodeTypeComponentSystem.OpcodeTypeComponentAwakeSystem.Awake(OpcodeTypeComponent self) in F:\ET-EUI\Unity\Codes\Model\Module\Message\OpcodeTypeComponent.cs:line 56
+   at ET.AwakeSystem`1.Run(Object o) in F:\ET-EUI\Unity\Codes\Model\Core\Object\IAwakeSystem.cs:line 65
+   at ET.EventSystem.Awake(Entity component) in F:\ET-EUI\Unity\Codes\Model\Core\Object\EventSystem.cs:line 363
+   at ET.Entity.AddComponent[K](Boolean isFromPool) in F:\ET-EUI\Unity\Codes\Model\Core\Object\Entity.cs:line 570
+   at ET.AppStart_Init.RunAsync(AppStart args) in F:\ET-EUI\Server\Hotfix\AppStart_Init.cs:line 14
+   at ET.ETTask.SetResult() in F:\ET-EUI\Unity\Assets\ThirdParty\ETTask\ETTask.cs:line 144
+   at ET.ETAsyncTaskMethodBuilder.SetResult() in F:\ET-EUI\Unity\Assets\ThirdParty\ETTask\AsyncETTaskMethodBuilder.cs:line 35
+   at ET.ConfigComponentSystem.LoadAsync(ConfigComponent self) in F:\ET-EUI\Unity\Codes\Hotfix\Module\Config\ConfigComponentSystem.cs:line 69
+   at System.Runtime.CompilerServices.TaskAwaiter.<>c.<OutputWaitEtwEvents>b__12_0(Action innerContinuation, Task innerTask)
+   at System.Runtime.CompilerServices.AsyncMethodBuilderCore.ContinuationWrapper.Invoke()
+   at System.Threading.Tasks.SynchronizationContextAwaitTaskContinuation.<>c__DisplayClass6_0.<GetActionLogDelegate>b__0()
+   at System.Threading.Tasks.SynchronizationContextAwaitTaskContinuation.<>c.<.cctor>b__8_0(Object state)
+   at ET.ThreadSynchronizationContext.<>c__DisplayClass8_0.<Post>b__0() in F:\ET-EUI\Unity\Assets\Mono\Core\ThreadSynchronizationContext.cs:line 45
+   at ET.ThreadSynchronizationContext.Update() in F:\ET-EUI\Unity\Assets\Mono\Core\ThreadSynchronizationContext.cs:line 34
+   at ET.Game.Update() in F:\ET-EUI\Unity\Codes\Model\Core\Entity\Game.cs:line 38
+   at ET.Program.Main(String[] args) in F:\ET-EUI\Server\App\Program.cs:line 50
+
+2023-02-25 20:34:10.3272 not found responseType: ET.ObjectGetRequest
+   at ET.OpcodeTypeComponentSystem.OpcodeTypeComponentAwakeSystem.Awake(OpcodeTypeComponent self) in F:\ET-EUI\Unity\Codes\Model\Module\Message\OpcodeTypeComponent.cs:line 56
+   at ET.AwakeSystem`1.Run(Object o) in F:\ET-EUI\Unity\Codes\Model\Core\Object\IAwakeSystem.cs:line 65
+   at ET.EventSystem.Awake(Entity component) in F:\ET-EUI\Unity\Codes\Model\Core\Object\EventSystem.cs:line 363
+   at ET.Entity.AddComponent[K](Boolean isFromPool) in F:\ET-EUI\Unity\Codes\Model\Core\Object\Entity.cs:line 570
+   at ET.AppStart_Init.RunAsync(AppStart args) in F:\ET-EUI\Server\Hotfix\AppStart_Init.cs:line 14
+   at ET.ETTask.SetResult() in F:\ET-EUI\Unity\Assets\ThirdParty\ETTask\ETTask.cs:line 144
+   at ET.ETAsyncTaskMethodBuilder.SetResult() in F:\ET-EUI\Unity\Assets\ThirdParty\ETTask\AsyncETTaskMethodBuilder.cs:line 35
+   at ET.ConfigComponentSystem.LoadAsync(ConfigComponent self) in F:\ET-EUI\Unity\Codes\Hotfix\Module\Config\ConfigComponentSystem.cs:line 69
+   at System.Runtime.CompilerServices.TaskAwaiter.<>c.<OutputWaitEtwEvents>b__12_0(Action innerContinuation, Task innerTask)
+   at System.Runtime.CompilerServices.AsyncMethodBuilderCore.ContinuationWrapper.Invoke()
+   at System.Threading.Tasks.SynchronizationContextAwaitTaskContinuation.<>c__DisplayClass6_0.<GetActionLogDelegate>b__0()
+   at System.Threading.Tasks.SynchronizationContextAwaitTaskContinuation.<>c.<.cctor>b__8_0(Object state)
+   at ET.ThreadSynchronizationContext.<>c__DisplayClass8_0.<Post>b__0() in F:\ET-EUI\Unity\Assets\Mono\Core\ThreadSynchronizationContext.cs:line 45
+   at ET.ThreadSynchronizationContext.Update() in F:\ET-EUI\Unity\Assets\Mono\Core\ThreadSynchronizationContext.cs:line 34
+   at ET.Game.Update() in F:\ET-EUI\Unity\Codes\Model\Core\Entity\Game.cs:line 38
+   at ET.Program.Main(String[] args) in F:\ET-EUI\Server\App\Program.cs:line 50
+
+2023-02-25 20:34:10.3272 not found responseType: ET.R2G_GetLoginKey
+   at ET.OpcodeTypeComponentSystem.OpcodeTypeComponentAwakeSystem.Awake(OpcodeTypeComponent self) in F:\ET-EUI\Unity\Codes\Model\Module\Message\OpcodeTypeComponent.cs:line 56
+   at ET.AwakeSystem`1.Run(Object o) in F:\ET-EUI\Unity\Codes\Model\Core\Object\IAwakeSystem.cs:line 65
+   at ET.EventSystem.Awake(Entity component) in F:\ET-EUI\Unity\Codes\Model\Core\Object\EventSystem.cs:line 363
+   at ET.Entity.AddComponent[K](Boolean isFromPool) in F:\ET-EUI\Unity\Codes\Model\Core\Object\Entity.cs:line 570
+   at ET.AppStart_Init.RunAsync(AppStart args) in F:\ET-EUI\Server\Hotfix\AppStart_Init.cs:line 14
+   at ET.ETTask.SetResult() in F:\ET-EUI\Unity\Assets\ThirdParty\ETTask\ETTask.cs:line 144
+   at ET.ETAsyncTaskMethodBuilder.SetResult() in F:\ET-EUI\Unity\Assets\ThirdParty\ETTask\AsyncETTaskMethodBuilder.cs:line 35
+   at ET.ConfigComponentSystem.LoadAsync(ConfigComponent self) in F:\ET-EUI\Unity\Codes\Hotfix\Module\Config\ConfigComponentSystem.cs:line 69
+   at System.Runtime.CompilerServices.TaskAwaiter.<>c.<OutputWaitEtwEvents>b__12_0(Action innerContinuation, Task innerTask)
+   at System.Runtime.CompilerServices.AsyncMethodBuilderCore.ContinuationWrapper.Invoke()
+   at System.Threading.Tasks.SynchronizationContextAwaitTaskContinuation.<>c__DisplayClass6_0.<GetActionLogDelegate>b__0()
+   at System.Threading.Tasks.SynchronizationContextAwaitTaskContinuation.<>c.<.cctor>b__8_0(Object state)
+   at ET.ThreadSynchronizationContext.<>c__DisplayClass8_0.<Post>b__0() in F:\ET-EUI\Unity\Assets\Mono\Core\ThreadSynchronizationContext.cs:line 45
+   at ET.ThreadSynchronizationContext.Update() in F:\ET-EUI\Unity\Assets\Mono\Core\ThreadSynchronizationContext.cs:line 34
+   at ET.Game.Update() in F:\ET-EUI\Unity\Codes\Model\Core\Entity\Game.cs:line 38
+   at ET.Program.Main(String[] args) in F:\ET-EUI\Server\App\Program.cs:line 50
+
+2023-02-25 20:34:10.3272 not found responseType: ET.M2M_UnitTransferRequest
+   at ET.OpcodeTypeComponentSystem.OpcodeTypeComponentAwakeSystem.Awake(OpcodeTypeComponent self) in F:\ET-EUI\Unity\Codes\Model\Module\Message\OpcodeTypeComponent.cs:line 56
+   at ET.AwakeSystem`1.Run(Object o) in F:\ET-EUI\Unity\Codes\Model\Core\Object\IAwakeSystem.cs:line 65
+   at ET.EventSystem.Awake(Entity component) in F:\ET-EUI\Unity\Codes\Model\Core\Object\EventSystem.cs:line 363
+   at ET.Entity.AddComponent[K](Boolean isFromPool) in F:\ET-EUI\Unity\Codes\Model\Core\Object\Entity.cs:line 570
+   at ET.AppStart_Init.RunAsync(AppStart args) in F:\ET-EUI\Server\Hotfix\AppStart_Init.cs:line 14
+   at ET.ETTask.SetResult() in F:\ET-EUI\Unity\Assets\ThirdParty\ETTask\ETTask.cs:line 144
+   at ET.ETAsyncTaskMethodBuilder.SetResult() in F:\ET-EUI\Unity\Assets\ThirdParty\ETTask\AsyncETTaskMethodBuilder.cs:line 35
+   at ET.ConfigComponentSystem.LoadAsync(ConfigComponent self) in F:\ET-EUI\Unity\Codes\Hotfix\Module\Config\ConfigComponentSystem.cs:line 69
+   at System.Runtime.CompilerServices.TaskAwaiter.<>c.<OutputWaitEtwEvents>b__12_0(Action innerContinuation, Task innerTask)
+   at System.Runtime.CompilerServices.AsyncMethodBuilderCore.ContinuationWrapper.Invoke()
+   at System.Threading.Tasks.SynchronizationContextAwaitTaskContinuation.<>c__DisplayClass6_0.<GetActionLogDelegate>b__0()
+   at System.Threading.Tasks.SynchronizationContextAwaitTaskContinuation.<>c.<.cctor>b__8_0(Object state)
+   at ET.ThreadSynchronizationContext.<>c__DisplayClass8_0.<Post>b__0() in F:\ET-EUI\Unity\Assets\Mono\Core\ThreadSynchronizationContext.cs:line 45
+   at ET.ThreadSynchronizationContext.Update() in F:\ET-EUI\Unity\Assets\Mono\Core\ThreadSynchronizationContext.cs:line 34
+   at ET.Game.Update() in F:\ET-EUI\Unity\Codes\Model\Core\Entity\Game.cs:line 38
+   at ET.Program.Main(String[] args) in F:\ET-EUI\Server\App\Program.cs:line 50
+
+2023-02-25 20:34:10.3272 not found responseType: ET.A2L_LoginAccountRequest
+   at ET.OpcodeTypeComponentSystem.OpcodeTypeComponentAwakeSystem.Awake(OpcodeTypeComponent self) in F:\ET-EUI\Unity\Codes\Model\Module\Message\OpcodeTypeComponent.cs:line 56
+   at ET.AwakeSystem`1.Run(Object o) in F:\ET-EUI\Unity\Codes\Model\Core\Object\IAwakeSystem.cs:line 65
+   at ET.EventSystem.Awake(Entity component) in F:\ET-EUI\Unity\Codes\Model\Core\Object\EventSystem.cs:line 363
+   at ET.Entity.AddComponent[K](Boolean isFromPool) in F:\ET-EUI\Unity\Codes\Model\Core\Object\Entity.cs:line 570
+   at ET.AppStart_Init.RunAsync(AppStart args) in F:\ET-EUI\Server\Hotfix\AppStart_Init.cs:line 14
+   at ET.ETTask.SetResult() in F:\ET-EUI\Unity\Assets\ThirdParty\ETTask\ETTask.cs:line 144
+   at ET.ETAsyncTaskMethodBuilder.SetResult() in F:\ET-EUI\Unity\Assets\ThirdParty\ETTask\AsyncETTaskMethodBuilder.cs:line 35
+   at ET.ConfigComponentSystem.LoadAsync(ConfigComponent self) in F:\ET-EUI\Unity\Codes\Hotfix\Module\Config\ConfigComponentSystem.cs:line 69
+   at System.Runtime.CompilerServices.TaskAwaiter.<>c.<OutputWaitEtwEvents>b__12_0(Action innerContinuation, Task innerTask)
+   at System.Runtime.CompilerServices.AsyncMethodBuilderCore.ContinuationWrapper.Invoke()
+   at System.Threading.Tasks.SynchronizationContextAwaitTaskContinuation.<>c__DisplayClass6_0.<GetActionLogDelegate>b__0()
+   at System.Threading.Tasks.SynchronizationContextAwaitTaskContinuation.<>c.<.cctor>b__8_0(Object state)
+   at ET.ThreadSynchronizationContext.<>c__DisplayClass8_0.<Post>b__0() in F:\ET-EUI\Unity\Assets\Mono\Core\ThreadSynchronizationContext.cs:line 45
+   at ET.ThreadSynchronizationContext.Update() in F:\ET-EUI\Unity\Assets\Mono\Core\ThreadSynchronizationContext.cs:line 34
+   at ET.Game.Update() in F:\ET-EUI\Unity\Codes\Model\Core\Entity\Game.cs:line 38
+   at ET.Program.Main(String[] args) in F:\ET-EUI\Server\App\Program.cs:line 50
+
+2023-02-25 20:34:10.3272 not found responseType: ET.C2A_GetServerInfos
+   at ET.OpcodeTypeComponentSystem.OpcodeTypeComponentAwakeSystem.Awake(OpcodeTypeComponent self) in F:\ET-EUI\Unity\Codes\Model\Module\Message\OpcodeTypeComponent.cs:line 56
+   at ET.AwakeSystem`1.Run(Object o) in F:\ET-EUI\Unity\Codes\Model\Core\Object\IAwakeSystem.cs:line 65
+   at ET.EventSystem.Awake(Entity component) in F:\ET-EUI\Unity\Codes\Model\Core\Object\EventSystem.cs:line 363
+   at ET.Entity.AddComponent[K](Boolean isFromPool) in F:\ET-EUI\Unity\Codes\Model\Core\Object\Entity.cs:line 570
+   at ET.AppStart_Init.RunAsync(AppStart args) in F:\ET-EUI\Server\Hotfix\AppStart_Init.cs:line 14
+   at ET.ETTask.SetResult() in F:\ET-EUI\Unity\Assets\ThirdParty\ETTask\ETTask.cs:line 144
+   at ET.ETAsyncTaskMethodBuilder.SetResult() in F:\ET-EUI\Unity\Assets\ThirdParty\ETTask\AsyncETTaskMethodBuilder.cs:line 35
+   at ET.ConfigComponentSystem.LoadAsync(ConfigComponent self) in F:\ET-EUI\Unity\Codes\Hotfix\Module\Config\ConfigComponentSystem.cs:line 69
+   at System.Runtime.CompilerServices.TaskAwaiter.<>c.<OutputWaitEtwEvents>b__12_0(Action innerContinuation, Task innerTask)
+   at System.Runtime.CompilerServices.AsyncMethodBuilderCore.ContinuationWrapper.Invoke()
+   at System.Threading.Tasks.SynchronizationContextAwaitTaskContinuation.<>c__DisplayClass6_0.<GetActionLogDelegate>b__0()
+   at System.Threading.Tasks.SynchronizationContextAwaitTaskContinuation.<>c.<.cctor>b__8_0(Object state)
+   at ET.ThreadSynchronizationContext.<>c__DisplayClass8_0.<Post>b__0() in F:\ET-EUI\Unity\Assets\Mono\Core\ThreadSynchronizationContext.cs:line 45
+   at ET.ThreadSynchronizationContext.Update() in F:\ET-EUI\Unity\Assets\Mono\Core\ThreadSynchronizationContext.cs:line 34
+   at ET.Game.Update() in F:\ET-EUI\Unity\Codes\Model\Core\Entity\Game.cs:line 38
+   at ET.Program.Main(String[] args) in F:\ET-EUI\Server\App\Program.cs:line 50
+
+2023-02-25 20:34:10.3272 not found responseType: ET.C2M_TestActorLocationRequest
+   at ET.OpcodeTypeComponentSystem.OpcodeTypeComponentAwakeSystem.Awake(OpcodeTypeComponent self) in F:\ET-EUI\Unity\Codes\Model\Module\Message\OpcodeTypeComponent.cs:line 56
+   at ET.AwakeSystem`1.Run(Object o) in F:\ET-EUI\Unity\Codes\Model\Core\Object\IAwakeSystem.cs:line 65
+   at ET.EventSystem.Awake(Entity component) in F:\ET-EUI\Unity\Codes\Model\Core\Object\EventSystem.cs:line 363
+   at ET.Entity.AddComponent[K](Boolean isFromPool) in F:\ET-EUI\Unity\Codes\Model\Core\Object\Entity.cs:line 570
+   at ET.AppStart_Init.RunAsync(AppStart args) in F:\ET-EUI\Server\Hotfix\AppStart_Init.cs:line 14
+   at ET.ETTask.SetResult() in F:\ET-EUI\Unity\Assets\ThirdParty\ETTask\ETTask.cs:line 144
+   at ET.ETAsyncTaskMethodBuilder.SetResult() in F:\ET-EUI\Unity\Assets\ThirdParty\ETTask\AsyncETTaskMethodBuilder.cs:line 35
+   at ET.ConfigComponentSystem.LoadAsync(ConfigComponent self) in F:\ET-EUI\Unity\Codes\Hotfix\Module\Config\ConfigComponentSystem.cs:line 69
+   at System.Runtime.CompilerServices.TaskAwaiter.<>c.<OutputWaitEtwEvents>b__12_0(Action innerContinuation, Task innerTask)
+   at System.Runtime.CompilerServices.AsyncMethodBuilderCore.ContinuationWrapper.Invoke()
+   at System.Threading.Tasks.SynchronizationContextAwaitTaskContinuation.<>c__DisplayClass6_0.<GetActionLogDelegate>b__0()
+   at System.Threading.Tasks.SynchronizationContextAwaitTaskContinuation.<>c.<.cctor>b__8_0(Object state)
+   at ET.ThreadSynchronizationContext.<>c__DisplayClass8_0.<Post>b__0() in F:\ET-EUI\Unity\Assets\Mono\Core\ThreadSynchronizationContext.cs:line 45
+   at ET.ThreadSynchronizationContext.Update() in F:\ET-EUI\Unity\Assets\Mono\Core\ThreadSynchronizationContext.cs:line 34
+   at ET.Game.Update() in F:\ET-EUI\Unity\Codes\Model\Core\Entity\Game.cs:line 38
+   at ET.Program.Main(String[] args) in F:\ET-EUI\Server\App\Program.cs:line 50
+
+2023-02-25 20:34:10.3272 not found responseType: ET.C2A_LoginAccount
+   at ET.OpcodeTypeComponentSystem.OpcodeTypeComponentAwakeSystem.Awake(OpcodeTypeComponent self) in F:\ET-EUI\Unity\Codes\Model\Module\Message\OpcodeTypeComponent.cs:line 56
+   at ET.AwakeSystem`1.Run(Object o) in F:\ET-EUI\Unity\Codes\Model\Core\Object\IAwakeSystem.cs:line 65
+   at ET.EventSystem.Awake(Entity component) in F:\ET-EUI\Unity\Codes\Model\Core\Object\EventSystem.cs:line 363
+   at ET.Entity.AddComponent[K](Boolean isFromPool) in F:\ET-EUI\Unity\Codes\Model\Core\Object\Entity.cs:line 570
+   at ET.AppStart_Init.RunAsync(AppStart args) in F:\ET-EUI\Server\Hotfix\AppStart_Init.cs:line 14
+   at ET.ETTask.SetResult() in F:\ET-EUI\Unity\Assets\ThirdParty\ETTask\ETTask.cs:line 144
+   at ET.ETAsyncTaskMethodBuilder.SetResult() in F:\ET-EUI\Unity\Assets\ThirdParty\ETTask\AsyncETTaskMethodBuilder.cs:line 35
+   at ET.ConfigComponentSystem.LoadAsync(ConfigComponent self) in F:\ET-EUI\Unity\Codes\Hotfix\Module\Config\ConfigComponentSystem.cs:line 69
+   at System.Runtime.CompilerServices.TaskAwaiter.<>c.<OutputWaitEtwEvents>b__12_0(Action innerContinuation, Task innerTask)
+   at System.Runtime.CompilerServices.AsyncMethodBuilderCore.ContinuationWrapper.Invoke()
+   at System.Threading.Tasks.SynchronizationContextAwaitTaskContinuation.<>c__DisplayClass6_0.<GetActionLogDelegate>b__0()
+   at System.Threading.Tasks.SynchronizationContextAwaitTaskContinuation.<>c.<.cctor>b__8_0(Object state)
+   at ET.ThreadSynchronizationContext.<>c__DisplayClass8_0.<Post>b__0() in F:\ET-EUI\Unity\Assets\Mono\Core\ThreadSynchronizationContext.cs:line 45
+   at ET.ThreadSynchronizationContext.Update() in F:\ET-EUI\Unity\Assets\Mono\Core\ThreadSynchronizationContext.cs:line 34
+   at ET.Game.Update() in F:\ET-EUI\Unity\Codes\Model\Core\Entity\Game.cs:line 38
+   at ET.Program.Main(String[] args) in F:\ET-EUI\Server\App\Program.cs:line 50
+
+2023-02-25 20:34:10.3272 not found responseType: ET.C2M_TestRequest
+   at ET.OpcodeTypeComponentSystem.OpcodeTypeComponentAwakeSystem.Awake(OpcodeTypeComponent self) in F:\ET-EUI\Unity\Codes\Model\Module\Message\OpcodeTypeComponent.cs:line 56
+   at ET.AwakeSystem`1.Run(Object o) in F:\ET-EUI\Unity\Codes\Model\Core\Object\IAwakeSystem.cs:line 65
+   at ET.EventSystem.Awake(Entity component) in F:\ET-EUI\Unity\Codes\Model\Core\Object\EventSystem.cs:line 363
+   at ET.Entity.AddComponent[K](Boolean isFromPool) in F:\ET-EUI\Unity\Codes\Model\Core\Object\Entity.cs:line 570
+   at ET.AppStart_Init.RunAsync(AppStart args) in F:\ET-EUI\Server\Hotfix\AppStart_Init.cs:line 14
+   at ET.ETTask.SetResult() in F:\ET-EUI\Unity\Assets\ThirdParty\ETTask\ETTask.cs:line 144
+   at ET.ETAsyncTaskMethodBuilder.SetResult() in F:\ET-EUI\Unity\Assets\ThirdParty\ETTask\AsyncETTaskMethodBuilder.cs:line 35
+   at ET.ConfigComponentSystem.LoadAsync(ConfigComponent self) in F:\ET-EUI\Unity\Codes\Hotfix\Module\Config\ConfigComponentSystem.cs:line 69
+   at System.Runtime.CompilerServices.TaskAwaiter.<>c.<OutputWaitEtwEvents>b__12_0(Action innerContinuation, Task innerTask)
+   at System.Runtime.CompilerServices.AsyncMethodBuilderCore.ContinuationWrapper.Invoke()
+   at System.Threading.Tasks.SynchronizationContextAwaitTaskContinuation.<>c__DisplayClass6_0.<GetActionLogDelegate>b__0()
+   at System.Threading.Tasks.SynchronizationContextAwaitTaskContinuation.<>c.<.cctor>b__8_0(Object state)
+   at ET.ThreadSynchronizationContext.<>c__DisplayClass8_0.<Post>b__0() in F:\ET-EUI\Unity\Assets\Mono\Core\ThreadSynchronizationContext.cs:line 45
+   at ET.ThreadSynchronizationContext.Update() in F:\ET-EUI\Unity\Assets\Mono\Core\ThreadSynchronizationContext.cs:line 34
+   at ET.Game.Update() in F:\ET-EUI\Unity\Codes\Model\Core\Entity\Game.cs:line 38
+   at ET.Program.Main(String[] args) in F:\ET-EUI\Server\App\Program.cs:line 50
+
+2023-02-25 20:34:10.3272 not found responseType: ET.Actor_TransferRequest
+   at ET.OpcodeTypeComponentSystem.OpcodeTypeComponentAwakeSystem.Awake(OpcodeTypeComponent self) in F:\ET-EUI\Unity\Codes\Model\Module\Message\OpcodeTypeComponent.cs:line 56
+   at ET.AwakeSystem`1.Run(Object o) in F:\ET-EUI\Unity\Codes\Model\Core\Object\IAwakeSystem.cs:line 65
+   at ET.EventSystem.Awake(Entity component) in F:\ET-EUI\Unity\Codes\Model\Core\Object\EventSystem.cs:line 363
+   at ET.Entity.AddComponent[K](Boolean isFromPool) in F:\ET-EUI\Unity\Codes\Model\Core\Object\Entity.cs:line 570
+   at ET.AppStart_Init.RunAsync(AppStart args) in F:\ET-EUI\Server\Hotfix\AppStart_Init.cs:line 14
+   at ET.ETTask.SetResult() in F:\ET-EUI\Unity\Assets\ThirdParty\ETTask\ETTask.cs:line 144
+   at ET.ETAsyncTaskMethodBuilder.SetResult() in F:\ET-EUI\Unity\Assets\ThirdParty\ETTask\AsyncETTaskMethodBuilder.cs:line 35
+   at ET.ConfigComponentSystem.LoadAsync(ConfigComponent self) in F:\ET-EUI\Unity\Codes\Hotfix\Module\Config\ConfigComponentSystem.cs:line 69
+   at System.Runtime.CompilerServices.TaskAwaiter.<>c.<OutputWaitEtwEvents>b__12_0(Action innerContinuation, Task innerTask)
+   at System.Runtime.CompilerServices.AsyncMethodBuilderCore.ContinuationWrapper.Invoke()
+   at System.Threading.Tasks.SynchronizationContextAwaitTaskContinuation.<>c__DisplayClass6_0.<GetActionLogDelegate>b__0()
+   at System.Threading.Tasks.SynchronizationContextAwaitTaskContinuation.<>c.<.cctor>b__8_0(Object state)
+   at ET.ThreadSynchronizationContext.<>c__DisplayClass8_0.<Post>b__0() in F:\ET-EUI\Unity\Assets\Mono\Core\ThreadSynchronizationContext.cs:line 45
+   at ET.ThreadSynchronizationContext.Update() in F:\ET-EUI\Unity\Assets\Mono\Core\ThreadSynchronizationContext.cs:line 34
+   at ET.Game.Update() in F:\ET-EUI\Unity\Codes\Model\Core\Entity\Game.cs:line 38
+   at ET.Program.Main(String[] args) in F:\ET-EUI\Server\App\Program.cs:line 50
+
+2023-02-25 20:34:10.3272 not found responseType: ET.C2G_EnterMap
+   at ET.OpcodeTypeComponentSystem.OpcodeTypeComponentAwakeSystem.Awake(OpcodeTypeComponent self) in F:\ET-EUI\Unity\Codes\Model\Module\Message\OpcodeTypeComponent.cs:line 56
+   at ET.AwakeSystem`1.Run(Object o) in F:\ET-EUI\Unity\Codes\Model\Core\Object\IAwakeSystem.cs:line 65
+   at ET.EventSystem.Awake(Entity component) in F:\ET-EUI\Unity\Codes\Model\Core\Object\EventSystem.cs:line 363
+   at ET.Entity.AddComponent[K](Boolean isFromPool) in F:\ET-EUI\Unity\Codes\Model\Core\Object\Entity.cs:line 570
+   at ET.AppStart_Init.RunAsync(AppStart args) in F:\ET-EUI\Server\Hotfix\AppStart_Init.cs:line 14
+   at ET.ETTask.SetResult() in F:\ET-EUI\Unity\Assets\ThirdParty\ETTask\ETTask.cs:line 144
+   at ET.ETAsyncTaskMethodBuilder.SetResult() in F:\ET-EUI\Unity\Assets\ThirdParty\ETTask\AsyncETTaskMethodBuilder.cs:line 35
+   at ET.ConfigComponentSystem.LoadAsync(ConfigComponent self) in F:\ET-EUI\Unity\Codes\Hotfix\Module\Config\ConfigComponentSystem.cs:line 69
+   at System.Runtime.CompilerServices.TaskAwaiter.<>c.<OutputWaitEtwEvents>b__12_0(Action innerContinuation, Task innerTask)
+   at System.Runtime.CompilerServices.AsyncMethodBuilderCore.ContinuationWrapper.Invoke()
+   at System.Threading.Tasks.SynchronizationContextAwaitTaskContinuation.<>c__DisplayClass6_0.<GetActionLogDelegate>b__0()
+   at System.Threading.Tasks.SynchronizationContextAwaitTaskContinuation.<>c.<.cctor>b__8_0(Object state)
+   at ET.ThreadSynchronizationContext.<>c__DisplayClass8_0.<Post>b__0() in F:\ET-EUI\Unity\Assets\Mono\Core\ThreadSynchronizationContext.cs:line 45
+   at ET.ThreadSynchronizationContext.Update() in F:\ET-EUI\Unity\Assets\Mono\Core\ThreadSynchronizationContext.cs:line 34
+   at ET.Game.Update() in F:\ET-EUI\Unity\Codes\Model\Core\Entity\Game.cs:line 38
+   at ET.Program.Main(String[] args) in F:\ET-EUI\Server\App\Program.cs:line 50
+
+2023-02-25 20:34:10.3272 not found responseType: ET.C2G_Ping
+   at ET.OpcodeTypeComponentSystem.OpcodeTypeComponentAwakeSystem.Awake(OpcodeTypeComponent self) in F:\ET-EUI\Unity\Codes\Model\Module\Message\OpcodeTypeComponent.cs:line 56
+   at ET.AwakeSystem`1.Run(Object o) in F:\ET-EUI\Unity\Codes\Model\Core\Object\IAwakeSystem.cs:line 65
+   at ET.EventSystem.Awake(Entity component) in F:\ET-EUI\Unity\Codes\Model\Core\Object\EventSystem.cs:line 363
+   at ET.Entity.AddComponent[K](Boolean isFromPool) in F:\ET-EUI\Unity\Codes\Model\Core\Object\Entity.cs:line 570
+   at ET.AppStart_Init.RunAsync(AppStart args) in F:\ET-EUI\Server\Hotfix\AppStart_Init.cs:line 14
+   at ET.ETTask.SetResult() in F:\ET-EUI\Unity\Assets\ThirdParty\ETTask\ETTask.cs:line 144
+   at ET.ETAsyncTaskMethodBuilder.SetResult() in F:\ET-EUI\Unity\Assets\ThirdParty\ETTask\AsyncETTaskMethodBuilder.cs:line 35
+   at ET.ConfigComponentSystem.LoadAsync(ConfigComponent self) in F:\ET-EUI\Unity\Codes\Hotfix\Module\Config\ConfigComponentSystem.cs:line 69
+   at System.Runtime.CompilerServices.TaskAwaiter.<>c.<OutputWaitEtwEvents>b__12_0(Action innerContinuation, Task innerTask)
+   at System.Runtime.CompilerServices.AsyncMethodBuilderCore.ContinuationWrapper.Invoke()
+   at System.Threading.Tasks.SynchronizationContextAwaitTaskContinuation.<>c__DisplayClass6_0.<GetActionLogDelegate>b__0()
+   at System.Threading.Tasks.SynchronizationContextAwaitTaskContinuation.<>c.<.cctor>b__8_0(Object state)
+   at ET.ThreadSynchronizationContext.<>c__DisplayClass8_0.<Post>b__0() in F:\ET-EUI\Unity\Assets\Mono\Core\ThreadSynchronizationContext.cs:line 45
+   at ET.ThreadSynchronizationContext.Update() in F:\ET-EUI\Unity\Assets\Mono\Core\ThreadSynchronizationContext.cs:line 34
+   at ET.Game.Update() in F:\ET-EUI\Unity\Codes\Model\Core\Entity\Game.cs:line 38
+   at ET.Program.Main(String[] args) in F:\ET-EUI\Server\App\Program.cs:line 50
+
+2023-02-25 20:34:10.3272 not found responseType: ET.C2M_Reload
+   at ET.OpcodeTypeComponentSystem.OpcodeTypeComponentAwakeSystem.Awake(OpcodeTypeComponent self) in F:\ET-EUI\Unity\Codes\Model\Module\Message\OpcodeTypeComponent.cs:line 56
+   at ET.AwakeSystem`1.Run(Object o) in F:\ET-EUI\Unity\Codes\Model\Core\Object\IAwakeSystem.cs:line 65
+   at ET.EventSystem.Awake(Entity component) in F:\ET-EUI\Unity\Codes\Model\Core\Object\EventSystem.cs:line 363
+   at ET.Entity.AddComponent[K](Boolean isFromPool) in F:\ET-EUI\Unity\Codes\Model\Core\Object\Entity.cs:line 570
+   at ET.AppStart_Init.RunAsync(AppStart args) in F:\ET-EUI\Server\Hotfix\AppStart_Init.cs:line 14
+   at ET.ETTask.SetResult() in F:\ET-EUI\Unity\Assets\ThirdParty\ETTask\ETTask.cs:line 144
+   at ET.ETAsyncTaskMethodBuilder.SetResult() in F:\ET-EUI\Unity\Assets\ThirdParty\ETTask\AsyncETTaskMethodBuilder.cs:line 35
+   at ET.ConfigComponentSystem.LoadAsync(ConfigComponent self) in F:\ET-EUI\Unity\Codes\Hotfix\Module\Config\ConfigComponentSystem.cs:line 69
+   at System.Runtime.CompilerServices.TaskAwaiter.<>c.<OutputWaitEtwEvents>b__12_0(Action innerContinuation, Task innerTask)
+   at System.Runtime.CompilerServices.AsyncMethodBuilderCore.ContinuationWrapper.Invoke()
+   at System.Threading.Tasks.SynchronizationContextAwaitTaskContinuation.<>c__DisplayClass6_0.<GetActionLogDelegate>b__0()
+   at System.Threading.Tasks.SynchronizationContextAwaitTaskContinuation.<>c.<.cctor>b__8_0(Object state)
+   at ET.ThreadSynchronizationContext.<>c__DisplayClass8_0.<Post>b__0() in F:\ET-EUI\Unity\Assets\Mono\Core\ThreadSynchronizationContext.cs:line 45
+   at ET.ThreadSynchronizationContext.Update() in F:\ET-EUI\Unity\Assets\Mono\Core\ThreadSynchronizationContext.cs:line 34
+   at ET.Game.Update() in F:\ET-EUI\Unity\Codes\Model\Core\Entity\Game.cs:line 38
+   at ET.Program.Main(String[] args) in F:\ET-EUI\Server\App\Program.cs:line 50
+
+2023-02-25 20:34:10.3272 not found responseType: ET.C2R_Login
+   at ET.OpcodeTypeComponentSystem.OpcodeTypeComponentAwakeSystem.Awake(OpcodeTypeComponent self) in F:\ET-EUI\Unity\Codes\Model\Module\Message\OpcodeTypeComponent.cs:line 56
+   at ET.AwakeSystem`1.Run(Object o) in F:\ET-EUI\Unity\Codes\Model\Core\Object\IAwakeSystem.cs:line 65
+   at ET.EventSystem.Awake(Entity component) in F:\ET-EUI\Unity\Codes\Model\Core\Object\EventSystem.cs:line 363
+   at ET.Entity.AddComponent[K](Boolean isFromPool) in F:\ET-EUI\Unity\Codes\Model\Core\Object\Entity.cs:line 570
+   at ET.AppStart_Init.RunAsync(AppStart args) in F:\ET-EUI\Server\Hotfix\AppStart_Init.cs:line 14
+   at ET.ETTask.SetResult() in F:\ET-EUI\Unity\Assets\ThirdParty\ETTask\ETTask.cs:line 144
+   at ET.ETAsyncTaskMethodBuilder.SetResult() in F:\ET-EUI\Unity\Assets\ThirdParty\ETTask\AsyncETTaskMethodBuilder.cs:line 35
+   at ET.ConfigComponentSystem.LoadAsync(ConfigComponent self) in F:\ET-EUI\Unity\Codes\Hotfix\Module\Config\ConfigComponentSystem.cs:line 69
+   at System.Runtime.CompilerServices.TaskAwaiter.<>c.<OutputWaitEtwEvents>b__12_0(Action innerContinuation, Task innerTask)
+   at System.Runtime.CompilerServices.AsyncMethodBuilderCore.ContinuationWrapper.Invoke()
+   at System.Threading.Tasks.SynchronizationContextAwaitTaskContinuation.<>c__DisplayClass6_0.<GetActionLogDelegate>b__0()
+   at System.Threading.Tasks.SynchronizationContextAwaitTaskContinuation.<>c.<.cctor>b__8_0(Object state)
+   at ET.ThreadSynchronizationContext.<>c__DisplayClass8_0.<Post>b__0() in F:\ET-EUI\Unity\Assets\Mono\Core\ThreadSynchronizationContext.cs:line 45
+   at ET.ThreadSynchronizationContext.Update() in F:\ET-EUI\Unity\Assets\Mono\Core\ThreadSynchronizationContext.cs:line 34
+   at ET.Game.Update() in F:\ET-EUI\Unity\Codes\Model\Core\Entity\Game.cs:line 38
+   at ET.Program.Main(String[] args) in F:\ET-EUI\Server\App\Program.cs:line 50
+
+2023-02-25 20:34:10.3272 not found responseType: ET.C2G_LoginGate
+   at ET.OpcodeTypeComponentSystem.OpcodeTypeComponentAwakeSystem.Awake(OpcodeTypeComponent self) in F:\ET-EUI\Unity\Codes\Model\Module\Message\OpcodeTypeComponent.cs:line 56
+   at ET.AwakeSystem`1.Run(Object o) in F:\ET-EUI\Unity\Codes\Model\Core\Object\IAwakeSystem.cs:line 65
+   at ET.EventSystem.Awake(Entity component) in F:\ET-EUI\Unity\Codes\Model\Core\Object\EventSystem.cs:line 363
+   at ET.Entity.AddComponent[K](Boolean isFromPool) in F:\ET-EUI\Unity\Codes\Model\Core\Object\Entity.cs:line 570
+   at ET.AppStart_Init.RunAsync(AppStart args) in F:\ET-EUI\Server\Hotfix\AppStart_Init.cs:line 14
+   at ET.ETTask.SetResult() in F:\ET-EUI\Unity\Assets\ThirdParty\ETTask\ETTask.cs:line 144
+   at ET.ETAsyncTaskMethodBuilder.SetResult() in F:\ET-EUI\Unity\Assets\ThirdParty\ETTask\AsyncETTaskMethodBuilder.cs:line 35
+   at ET.ConfigComponentSystem.LoadAsync(ConfigComponent self) in F:\ET-EUI\Unity\Codes\Hotfix\Module\Config\ConfigComponentSystem.cs:line 69
+   at System.Runtime.CompilerServices.TaskAwaiter.<>c.<OutputWaitEtwEvents>b__12_0(Action innerContinuation, Task innerTask)
+   at System.Runtime.CompilerServices.AsyncMethodBuilderCore.ContinuationWrapper.Invoke()
+   at System.Threading.Tasks.SynchronizationContextAwaitTaskContinuation.<>c__DisplayClass6_0.<GetActionLogDelegate>b__0()
+   at System.Threading.Tasks.SynchronizationContextAwaitTaskContinuation.<>c.<.cctor>b__8_0(Object state)
+   at ET.ThreadSynchronizationContext.<>c__DisplayClass8_0.<Post>b__0() in F:\ET-EUI\Unity\Assets\Mono\Core\ThreadSynchronizationContext.cs:line 45
+   at ET.ThreadSynchronizationContext.Update() in F:\ET-EUI\Unity\Assets\Mono\Core\ThreadSynchronizationContext.cs:line 34
+   at ET.Game.Update() in F:\ET-EUI\Unity\Codes\Model\Core\Entity\Game.cs:line 38
+   at ET.Program.Main(String[] args) in F:\ET-EUI\Server\App\Program.cs:line 50
+
+2023-02-25 20:34:10.3272 not found responseType: ET.C2M_TestRobotCase
+   at ET.OpcodeTypeComponentSystem.OpcodeTypeComponentAwakeSystem.Awake(OpcodeTypeComponent self) in F:\ET-EUI\Unity\Codes\Model\Module\Message\OpcodeTypeComponent.cs:line 56
+   at ET.AwakeSystem`1.Run(Object o) in F:\ET-EUI\Unity\Codes\Model\Core\Object\IAwakeSystem.cs:line 65
+   at ET.EventSystem.Awake(Entity component) in F:\ET-EUI\Unity\Codes\Model\Core\Object\EventSystem.cs:line 363
+   at ET.Entity.AddComponent[K](Boolean isFromPool) in F:\ET-EUI\Unity\Codes\Model\Core\Object\Entity.cs:line 570
+   at ET.AppStart_Init.RunAsync(AppStart args) in F:\ET-EUI\Server\Hotfix\AppStart_Init.cs:line 14
+   at ET.ETTask.SetResult() in F:\ET-EUI\Unity\Assets\ThirdParty\ETTask\ETTask.cs:line 144
+   at ET.ETAsyncTaskMethodBuilder.SetResult() in F:\ET-EUI\Unity\Assets\ThirdParty\ETTask\AsyncETTaskMethodBuilder.cs:line 35
+   at ET.ConfigComponentSystem.LoadAsync(ConfigComponent self) in F:\ET-EUI\Unity\Codes\Hotfix\Module\Config\ConfigComponentSystem.cs:line 69
+   at System.Runtime.CompilerServices.TaskAwaiter.<>c.<OutputWaitEtwEvents>b__12_0(Action innerContinuation, Task innerTask)
+   at System.Runtime.CompilerServices.AsyncMethodBuilderCore.ContinuationWrapper.Invoke()
+   at System.Threading.Tasks.SynchronizationContextAwaitTaskContinuation.<>c__DisplayClass6_0.<GetActionLogDelegate>b__0()
+   at System.Threading.Tasks.SynchronizationContextAwaitTaskContinuation.<>c.<.cctor>b__8_0(Object state)
+   at ET.ThreadSynchronizationContext.<>c__DisplayClass8_0.<Post>b__0() in F:\ET-EUI\Unity\Assets\Mono\Core\ThreadSynchronizationContext.cs:line 45
+   at ET.ThreadSynchronizationContext.Update() in F:\ET-EUI\Unity\Assets\Mono\Core\ThreadSynchronizationContext.cs:line 34
+   at ET.Game.Update() in F:\ET-EUI\Unity\Codes\Model\Core\Entity\Game.cs:line 38
+   at ET.Program.Main(String[] args) in F:\ET-EUI\Server\App\Program.cs:line 50
+
+2023-02-25 20:34:10.3381 not found responseType: ET.C2M_TransferMap
+   at ET.OpcodeTypeComponentSystem.OpcodeTypeComponentAwakeSystem.Awake(OpcodeTypeComponent self) in F:\ET-EUI\Unity\Codes\Model\Module\Message\OpcodeTypeComponent.cs:line 56
+   at ET.AwakeSystem`1.Run(Object o) in F:\ET-EUI\Unity\Codes\Model\Core\Object\IAwakeSystem.cs:line 65
+   at ET.EventSystem.Awake(Entity component) in F:\ET-EUI\Unity\Codes\Model\Core\Object\EventSystem.cs:line 363
+   at ET.Entity.AddComponent[K](Boolean isFromPool) in F:\ET-EUI\Unity\Codes\Model\Core\Object\Entity.cs:line 570
+   at ET.AppStart_Init.RunAsync(AppStart args) in F:\ET-EUI\Server\Hotfix\AppStart_Init.cs:line 14
+   at ET.ETTask.SetResult() in F:\ET-EUI\Unity\Assets\ThirdParty\ETTask\ETTask.cs:line 144
+   at ET.ETAsyncTaskMethodBuilder.SetResult() in F:\ET-EUI\Unity\Assets\ThirdParty\ETTask\AsyncETTaskMethodBuilder.cs:line 35
+   at ET.ConfigComponentSystem.LoadAsync(ConfigComponent self) in F:\ET-EUI\Unity\Codes\Hotfix\Module\Config\ConfigComponentSystem.cs:line 69
+   at System.Runtime.CompilerServices.TaskAwaiter.<>c.<OutputWaitEtwEvents>b__12_0(Action innerContinuation, Task innerTask)
+   at System.Runtime.CompilerServices.AsyncMethodBuilderCore.ContinuationWrapper.Invoke()
+   at System.Threading.Tasks.SynchronizationContextAwaitTaskContinuation.<>c__DisplayClass6_0.<GetActionLogDelegate>b__0()
+   at System.Threading.Tasks.SynchronizationContextAwaitTaskContinuation.<>c.<.cctor>b__8_0(Object state)
+   at ET.ThreadSynchronizationContext.<>c__DisplayClass8_0.<Post>b__0() in F:\ET-EUI\Unity\Assets\Mono\Core\ThreadSynchronizationContext.cs:line 45
+   at ET.ThreadSynchronizationContext.Update() in F:\ET-EUI\Unity\Assets\Mono\Core\ThreadSynchronizationContext.cs:line 34
+   at ET.Game.Update() in F:\ET-EUI\Unity\Codes\Model\Core\Entity\Game.cs:line 38
+   at ET.Program.Main(String[] args) in F:\ET-EUI\Server\App\Program.cs:line 50
+
+2023-02-25 20:34:10.3727 message is IActorLocationMessage but handler is AMActorRpcHandler: ET.A2L_LoginAccountRequest
+   at ET.AMActorRpcHandler`3.GetRequestType() in F:\ET-EUI\Server\Model\Module\Actor\AMActorRpcHandler.cs:line 59
+   at ET.ActorMessageDispatcherComponentHelper.Load(ActorMessageDispatcherComponent self) in F:\ET-EUI\Server\Hotfix\Module\Actor\ActorMessageDispatcherComponentSystem.cs:line 60
+   at ET.ActorMessageDispatcherComponentHelper.Awake(ActorMessageDispatcherComponent self) in F:\ET-EUI\Server\Hotfix\Module\Actor\ActorMessageDispatcherComponentSystem.cs:line 42
+   at ET.ActorMessageDispatcherComponentAwakeSystem.Awake(ActorMessageDispatcherComponent self) in F:\ET-EUI\Server\Hotfix\Module\Actor\ActorMessageDispatcherComponentSystem.cs:line 11
+   at ET.AwakeSystem`1.Run(Object o) in F:\ET-EUI\Unity\Codes\Model\Core\Object\IAwakeSystem.cs:line 65
+   at ET.EventSystem.Awake(Entity component) in F:\ET-EUI\Unity\Codes\Model\Core\Object\EventSystem.cs:line 363
+   at ET.Entity.AddComponent[K](Boolean isFromPool) in F:\ET-EUI\Unity\Codes\Model\Core\Object\Entity.cs:line 570
+   at ET.AppStart_Init.RunAsync(AppStart args) in F:\ET-EUI\Server\Hotfix\AppStart_Init.cs:line 24
+   at ET.ETTask.SetResult() in F:\ET-EUI\Unity\Assets\ThirdParty\ETTask\ETTask.cs:line 144
+   at ET.ETAsyncTaskMethodBuilder.SetResult() in F:\ET-EUI\Unity\Assets\ThirdParty\ETTask\AsyncETTaskMethodBuilder.cs:line 35
+   at ET.ConfigComponentSystem.LoadAsync(ConfigComponent self) in F:\ET-EUI\Unity\Codes\Hotfix\Module\Config\ConfigComponentSystem.cs:line 69
+   at System.Runtime.CompilerServices.TaskAwaiter.<>c.<OutputWaitEtwEvents>b__12_0(Action innerContinuation, Task innerTask)
+   at System.Runtime.CompilerServices.AsyncMethodBuilderCore.ContinuationWrapper.Invoke()
+   at System.Threading.Tasks.SynchronizationContextAwaitTaskContinuation.<>c__DisplayClass6_0.<GetActionLogDelegate>b__0()
+   at System.Threading.Tasks.SynchronizationContextAwaitTaskContinuation.<>c.<.cctor>b__8_0(Object state)
+   at ET.ThreadSynchronizationContext.<>c__DisplayClass8_0.<Post>b__0() in F:\ET-EUI\Unity\Assets\Mono\Core\ThreadSynchronizationContext.cs:line 45
+   at ET.ThreadSynchronizationContext.Update() in F:\ET-EUI\Unity\Assets\Mono\Core\ThreadSynchronizationContext.cs:line 34
+   at ET.Game.Update() in F:\ET-EUI\Unity\Codes\Model\Core\Entity\Game.cs:line 38
+   at ET.Program.Main(String[] args) in F:\ET-EUI\Server\App\Program.cs:line 50
+
+2023-02-25 20:34:10.3955 System.Exception: not found response type, request type: RuntimeType
+   at ET.OpcodeTypeComponentSystem.GetResponseType(OpcodeTypeComponent self, Type request) in F:\ET-EUI\Unity\Codes\Model\Module\Message\OpcodeTypeComponent.cs:line 95
+   at ET.ActorMessageDispatcherComponentHelper.Load(ActorMessageDispatcherComponent self) in F:\ET-EUI\Server\Hotfix\Module\Actor\ActorMessageDispatcherComponentSystem.cs:line 65
+   at ET.ActorMessageDispatcherComponentHelper.Awake(ActorMessageDispatcherComponent self) in F:\ET-EUI\Server\Hotfix\Module\Actor\ActorMessageDispatcherComponentSystem.cs:line 42
+   at ET.ActorMessageDispatcherComponentAwakeSystem.Awake(ActorMessageDispatcherComponent self) in F:\ET-EUI\Server\Hotfix\Module\Actor\ActorMessageDispatcherComponentSystem.cs:line 11
+   at ET.AwakeSystem`1.Run(Object o) in F:\ET-EUI\Unity\Codes\Model\Core\Object\IAwakeSystem.cs:line 65
+   at ET.EventSystem.Awake(Entity component) in F:\ET-EUI\Unity\Codes\Model\Core\Object\EventSystem.cs:line 363
+  #+END_SRC
