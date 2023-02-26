@@ -11,7 +11,7 @@ namespace ET { // 这是服务器热更新 Hotfix 里的启动
             await ConfigComponent.Instance.LoadAsync();
             StartProcessConfig processConfig = StartProcessConfigCategory.Instance.Get(Game.Options.Process);
             Game.Scene.AddComponent<TimerComponent>();
-            Game.Scene.AddComponent<OpcodeTypeComponent>();
+            Game.Scene.AddComponent<OpcodeTypeComponent>(); // 它说，服务器运行时，这里加载这个组件出错了：原因是某个内网消息找不到返回类型？
             Game.Scene.AddComponent<MessageDispatcherComponent>();
             Game.Scene.AddComponent<SessionStreamDispatcher>();
             Game.Scene.AddComponent<CoroutineLockComponent>();

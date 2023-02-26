@@ -1,6 +1,7 @@
 syntax = "proto3";
 package ET;
 
+
 //ResponseType G2L_DisconnectGateUnit
 message L2G_DisconnectGateUnit // IActorRequest
 {
