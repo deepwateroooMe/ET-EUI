@@ -166,11 +166,6 @@
 2023-02-25 20:34:10.3272 not found responseType: ET. 某个需要带返回消息的 protobuf 消息名称
 #+END_SRC
 - 上面这个错，可能是我消息注册的时候，所申明的类型不对(line 5)，可以参考别人的，再对比一下： InnerMessage.proto
-
-[[./pic/readme_20230226_091853.png]]
-- 它生成的对应类是这样的： 
-  
-[[./pic/readme_20230226_134016.png]]
 - 报错的地方出在了： OpcodeTypeComponent.cs 文件 
 #+BEGIN_SRC csharp
 [FriendClass(typeof(OpcodeTypeComponent))]
@@ -221,6 +216,11 @@ public static class OpcodeTypeComponentSystem {
 - 所以晚上回家，我可以顺着这个逻辑往下解决。从 .proto 源文件到 .cs 文件，自定义的工具生成逻辑定义在 Tools 下的 Proto2CS.cs
   
 [[./pic/readme_20230226_150830.png]]
+
+
+
+
+
 
 
 
