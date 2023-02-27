@@ -203,25 +203,15 @@ public static class OpcodeTypeComponentSystem {
                         Log.Error($"not found responseType: {type}"); // 报错的日志是这一行：
                         continue;
                     }
-                    ResponseTypeAttribute responseTypeAttribute = attrs[0] as ResponseTypeAttribute;
-                    self.requestResponse.Add(type, Game.EventSystem.GetType($"ET.{responseTypeAttribute.Type}"));
-                }
-            }
-        }
-    }
 #+END_SRC
 - 这个错把上下文都看了一下，整全系统性地报错。可以把这个ET-EUI 与原本的ET 框架再对比一下，或是它系统性的错误，或是我 protobuf 的版本不对？应该不至于呀？
-- 还是说这个EUI 系的 ResponseType 标注系统了出错了呢？【是的】还是说我的 //ResponseType 标注哪里出错了呢？
-- 在用 protobuf 转 .proto 的 message 源文件为 .cs 文件时，这个标签的标签出错了，整个ET-EUI 没有出现一下正确的【ResponseType(typeof())] 标签
 - 所以晚上回家，我可以顺着这个逻辑往下解决。从 .proto 源文件到 .cs 文件，自定义的工具生成逻辑定义在 Tools 下的 Proto2CS.cs
   
 [[./pic/readme_20230226_150830.png]]
+- 找到原因了，这个框架里的作者笔误，还是偶自己不小心阴差阳错就弄丢了两个最关键的字符呢？
+  
+[[./pic/readme_20230226_155950.png]]
+- 因为没能新生成了一行【缺少了“\n”符号】，所以每个正常应该生成的 [ResponseType(typeof(XXX))] 都被后面一行的 "message" 内容给覆盖掉了，真昏呀。。。。。
 
 
-
-
-
-
-
-
-
+- 爱表哥，爱生活！！！活宝妹就是一定要嫁给亲爱的表哥。爱表哥，爱生活！！！
