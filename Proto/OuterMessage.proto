@@ -2,13 +2,13 @@ syntax = "proto3";
 package ET;
 
 //ResponseType L2A_LoginAccountResponse
-message A2L_LoginAccountRequest // IActorLocationRequest
+message A2L_LoginAccountRequest // IActorRequest
 {
 	int32 RpcId = 90;
 	int64  AccountId = 1;  // 帐号
 	string  Password = 2;  // 密码
 }
-message L2A_LoginAccountResponse // IActorLocationResponse
+message L2A_LoginAccountResponse // IActorResponse
 {
 	int32 RpcId = 90;
 	int32 Error = 91;

@@ -23,6 +23,18 @@ namespace ET {
         private static readonly List<OpcodeInfo> msgOpcode = new List<OpcodeInfo>();
         public static void Proto2CS() {
             msgOpcode.Clear();
+            // 这里把两个路径下的文件清理一下，重新生成，会怎么样？
+            
+            if (Directory.Exists(clientMessagePath))
+            {
+                Directory.Delete(clientMessagePath, true);
+            }
+
+            if (Directory.Exists(serverMessagePath))
+            {
+                Directory.Delete(serverMessagePath, true);
+            }
+            
             Proto2CS("ET", "../Proto/InnerMessage.proto", serverMessagePath, "InnerOpcode", OpcodeRangeDefine.InnerMinOpcode);
             GenerateOpcode("ET", "InnerOpcode", serverMessagePath);
             Proto2CS("ET", "../Proto/MongoMessage.proto", serverMessagePath, "MongoOpcode", OpcodeRangeDefine.MongoMinOpcode);
@@ -52,12 +64,12 @@ namespace ET {
                 if (newline == "") {
                     continue;
                 }
-                if (newline.StartsWith("// ResponseType")) {
+                if (newline.StartsWith("//ResponseType")) { // 这里的这个空格也很重要，要不然会判断错
                     string responseType = line.Split(" ")[1].TrimEnd('\r', '\n');
                     sb.AppendLine($"\t[ResponseType(nameof({responseType}))]");
                     continue;
                 }
-                if (newline.StartsWith("// ")) {
+                if (newline.StartsWith("//")) {// 这个空格，似乎没有那么重要
                     sb.Append($"{newline}\n");
                     continue;
                 }

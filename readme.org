@@ -160,58 +160,14 @@
     
 [[./pic/readme_20230223_273227.png]]
 - 现在它可以构建成功了，晚上回家会好好测试一下。
-* 服务器端的日志，记一下：明天白天可以看一下是怎么回事，这个框架 ET-EUI ？
-- 看这些太没意思了，中午吃完午饭或是下午快睡着再看，再改改，现在是实在不想再弄这个
-  #+BEGIN_SRC text
-2023-02-25 20:34:10.3272 not found responseType: ET. 某个需要带返回消息的 protobuf 消息名称
-#+END_SRC
-- 上面这个错，可能是我消息注册的时候，所申明的类型不对(line 5)，可以参考别人的，再对比一下： InnerMessage.proto
-- 报错的地方出在了： OpcodeTypeComponent.cs 文件 
-#+BEGIN_SRC csharp
-[FriendClass(typeof(OpcodeTypeComponent))]
-public static class OpcodeTypeComponentSystem {
-    [ObjectSystem] // 它说，这里起始加载的时候就出错了？
-    public class OpcodeTypeComponentAwakeSystem: AwakeSystem<OpcodeTypeComponent> {
-        public override void Awake(OpcodeTypeComponent self) {
-            OpcodeTypeComponent.Instance = self;
-            self.opcodeTypes.Clear();
-            self.typeOpcodes.Clear();
-            self.requestResponse.Clear();
-            List<Type> types = Game.EventSystem.GetTypes(typeof (MessageAttribute));
-            foreach (Type type in types) {
-                object[] attrs = type.GetCustomAttributes(typeof (MessageAttribute), false);
-                if (attrs.Length == 0) {
-                    continue;
-                }
-                MessageAttribute messageAttribute = attrs[0] as MessageAttribute;
-                if (messageAttribute == null) {
-                    continue;
-                }
-                self.opcodeTypes.Add(messageAttribute.Opcode, type);
-                self.typeOpcodes.Add(type, messageAttribute.Opcode);
-                if (OpcodeHelper.IsOuterMessage(messageAttribute.Opcode) && typeof (IActorMessage).IsAssignableFrom(type)) {
-                    self.outrActorMessage.Add(messageAttribute.Opcode);
-                }
-                // 检查request response
-                if (typeof (IRequest).IsAssignableFrom(type)) { // 它会进入到这个分支里面来
-                    if (typeof (IActorLocationMessage).IsAssignableFrom(type)) {
-                        self.requestResponse.Add(type, typeof(ActorResponse));
-                        continue;
-                    }
-                    attrs = type.GetCustomAttributes(typeof (ResponseTypeAttribute), false); // <<<<<<<<<<<<<<<<<<<< 它要找的是这个标签属性
-                    if (attrs.Length == 0) { // <<<<<<<<<<<<<<<<<<<< 这里就出错了：确定没能找到返回类型。可是 proto 里面我是申明清楚了的？
-                        Log.Error($"not found responseType: {type}"); // 报错的日志是这一行：
-                        continue;
-                    }
-#+END_SRC
-- 这个错把上下文都看了一下，整全系统性地报错。可以把这个ET-EUI 与原本的ET 框架再对比一下，或是它系统性的错误，或是我 protobuf 的版本不对？应该不至于呀？
-- 所以晚上回家，我可以顺着这个逻辑往下解决。从 .proto 源文件到 .cs 文件，自定义的工具生成逻辑定义在 Tools 下的 Proto2CS.cs
-  
-[[./pic/readme_20230226_150830.png]]
-- 找到原因了，这个框架里的作者笔误，还是偶自己不小心阴差阳错就弄丢了两个最关键的字符呢？
-  
-[[./pic/readme_20230226_155950.png]]
-- 因为没能新生成了一行【缺少了“\n”符号】，所以每个正常应该生成的 [ResponseType(typeof(XXX))] 都被后面一行的 "message" 内容给覆盖掉了，真昏呀。。。。。
+* 服务器端的逻辑很好解决
+- 就是涉及到 .proto 源 protobuf 文件的，自定义解析方法。当把那个标签能够解析出来了，而不是被后面一行覆盖掉，就很好解决了
+* 客户端的程序集的加载？
+- 现在客户端的问题是：服务器端可以找到所有相关的消息定义和标签。但是客户端很奇怪的是：只是我后来添加的大概十几个消息找不到返回类型
+  - 解析的话，因为是双端框架，所以生成的代码是一样的。如果服务器没有找不到的问题，只能是客户端的其它地方出了问题
+  - EventSystem? 现在还不有想明白可能存在的原因，明天会好好看一下
+    
+[[./pic/readme_20230226_213553.png]]
+  - 问题出在客户端启动的时候，所以重点检查这部分的逻辑
 
-
-- 爱表哥，爱生活！！！活宝妹就是一定要嫁给亲爱的表哥。爱表哥，爱生活！！！
+- 我爱亲爱的表哥，活宝妹一定要嫁的亲爱的表哥！！！亲爱的表哥，活宝妹一定要嫁的亲爱的表哥！！！亲爱的表哥，活宝妹一定要嫁的亲爱的表哥！！！
