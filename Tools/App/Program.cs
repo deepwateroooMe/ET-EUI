@@ -2,61 +2,49 @@
 using System.Threading;
 using CommandLine;
 using NLog;
+namespace ET {
 
-namespace ET
-{
-    internal static class Program
-    {
-        private static int Main(string[] args)
-        {
-            AppDomain.CurrentDomain.UnhandledException += (sender, e) =>
-            {
+    internal static class Program {
+        private static int Main(string[] args) {
+            AppDomain.CurrentDomain.UnhandledException += (sender, e) => {
                 Log.Error(e.ExceptionObject.ToString());
             };
-
             ETTask.ExceptionHandler += Log.Error;
             
             // 异步方法全部会回掉到主线程
             SynchronizationContext.SetSynchronizationContext(ThreadSynchronizationContext.Instance);
-			
-            try
-            {		
+            
+            try {        
                 Game.EventSystem.Add(typeof(Game).Assembly);
-				
+                
                 ProtobufHelper.Init();
                 MongoRegister.Init();
-				
+                
                 // 命令行参数
                 Options options = null;
                 Parser.Default.ParseArguments<Options>(args)
-                        .WithNotParsed(error => throw new Exception($"命令行格式错误!"))
-                        .WithParsed(o => { options = o; });
-
+                    .WithNotParsed(error => throw new Exception($"命令行格式错误!"))
+                    .WithParsed(o => { options = o; });
                 Options.Instance = options;
-
                 Log.ILog = new NLogger(Game.Options.AppType.ToString());
                 LogManager.Configuration.Variables["appIdFormat"] = $"{Game.Options.Process:000000}";
-				
+                
                 Log.Info($"server start........................ {Game.Scene.Id}");
-				
-                switch (Game.Options.AppType)
-                {
-                    case AppType.ExcelExporter:
-                    {
+                
+                switch (Game.Options.AppType) {
+                    case AppType.ExcelExporter: { // 这里可能会涉及到，Excel 里关于服务器的配置，需要借助工具将，Excel 里面所配置的服务器等导表加出来
                         Game.Options.Console = 1;
                         ExcelExporter.Export();
                         return 0;
                     }
-                    case AppType.Proto2CS:
-                    {
+                    case AppType.Proto2CS: {
                         Game.Options.Console = 1;
                         Proto2CS.Export();
                         return 0;
                     }
                 }
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                 Log.Console(e.ToString());
             }
             return 1;
