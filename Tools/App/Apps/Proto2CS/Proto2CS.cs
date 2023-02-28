@@ -24,17 +24,12 @@ namespace ET {
         public static void Proto2CS() {
             msgOpcode.Clear();
             // 这里把两个路径下的文件清理一下，重新生成，会怎么样？
-            
-            if (Directory.Exists(clientMessagePath))
-            {
-                Directory.Delete(clientMessagePath, true);
+            if (Directory.Exists(clientMessagePath)) {
+                Directory.Delete(clientMessagePath, true); 
             }
-
-            if (Directory.Exists(serverMessagePath))
-            {
+            if (Directory.Exists(serverMessagePath)) {
                 Directory.Delete(serverMessagePath, true);
             }
-            
             Proto2CS("ET", "../Proto/InnerMessage.proto", serverMessagePath, "InnerOpcode", OpcodeRangeDefine.InnerMinOpcode);
             GenerateOpcode("ET", "InnerOpcode", serverMessagePath);
             Proto2CS("ET", "../Proto/MongoMessage.proto", serverMessagePath, "MongoOpcode", OpcodeRangeDefine.MongoMinOpcode);
@@ -59,25 +54,26 @@ namespace ET {
             sb.Append($"namespace {ns}\n");
             sb.Append("{\n");
             bool isMsgStart = false;
-            foreach (string line in s.Split('\n')) {
+            foreach (string line in s.Split('\n')) { // 一行一行地解析
                 string newline = line.Trim();
                 if (newline == "") {
                     continue;
                 }
-                if (newline.StartsWith("//ResponseType")) { // 这里的这个空格也很重要，要不然会判断错
+                if (newline.StartsWith("//ResponseType")) { // 生成 [ResponseType(typeof(XXX))] 标签 
                     string responseType = line.Split(" ")[1].TrimEnd('\r', '\n');
                     sb.AppendLine($"\t[ResponseType(nameof({responseType}))]");
                     continue;
                 }
-                if (newline.StartsWith("//")) {// 这个空格，似乎没有那么重要
+                if (newline.StartsWith("//")) {// 除非上面的 //ResponseType 书写手误，一般不会掉进这里
                     sb.Append($"{newline}\n");
                     continue;
                 }
-                if (newline.StartsWith("message")) {
+                if (newline.StartsWith("message")) { // 消息的定义
                     string parentClass = "";
                     isMsgStart = true;
                     string msgName = newline.Split(splitChars, StringSplitOptions.RemoveEmptyEntries)[1];
-                    string[] ss = newline.Split(new[] { "// " }, StringSplitOptions.RemoveEmptyEntries);
+                    string[] ss = newline.Split(new[] { "//" }, StringSplitOptions.RemoveEmptyEntries); // 它的尾巴上可能有标明类型。这里写 "//" 更好，有时可能后面没有接空格
+                    // string[] ss = newline.Split(new[] { "// " }, StringSplitOptions.RemoveEmptyEntries); // 它的尾巴上可能有标明类型。这里写// 更好
                     if (ss.Length == 2) {
                         parentClass = ss[1].Trim();
                     }
@@ -104,8 +100,9 @@ namespace ET {
                         sb.Append("\t}\n\n");
                         continue;
                     }
-                    if (newline.Trim().StartsWith("// ")) {
-                        sb.AppendLine(newline);
+                    if (newline.Trim().StartsWith("// ")) { // 把 message{// ....} 定义过程中出现过的注释，过滤掉了
+                        sb.AppendLine(newline); // 也对， AppendLine() 
+                        // sb.AppendLine($"{newline}\n"); 
                         continue;
                     }
                     if (newline.Trim() != "" && newline != "}") {

@@ -3,20 +3,20 @@ using System.Collections.Generic;
 namespace ET {
     [FriendClass(typeof(OpcodeTypeComponent))]
     public static class OpcodeTypeComponentSystem {
-        [ObjectSystem] // 它说，这里起始加载的时候就出错了？
+        [ObjectSystem] // 它说，这里起始加载的时候就出错了？客户端，感觉这个类，有些部分还是没有看透彻
         public class OpcodeTypeComponentAwakeSystem: AwakeSystem<OpcodeTypeComponent> {
             public override void Awake(OpcodeTypeComponent self) {
                 OpcodeTypeComponent.Instance = self;
-                self.opcodeTypes.Clear();
-                self.typeOpcodes.Clear();
+                self.opcodeTypes.Clear(); // 就是在这个 ET-EUI 系统里，它每次都是被清空了，然后再一个一个又添加的
+                self.typeOpcodes.Clear(); // 是每次客户端启动：都会被再清空一次，只填客户端程序集中的？【不一定是程序集，去查事件系统！】
                 self.requestResponse.Clear();
-                List<Type> types = Game.EventSystem.GetTypes(typeof (MessageAttribute));
+                List<Type> types = Game.EventSystem.GetTypes(typeof (MessageAttribute)); // 这些类型的来源：是这个标签系统，是被 EventSystem 扫描出来的
                 foreach (Type type in types) {
-                    object[] attrs = type.GetCustomAttributes(typeof (MessageAttribute), false);
+                    object[] attrs = type.GetCustomAttributes(typeof (MessageAttribute), false); // 不知道：这个数组是什么意思？
                     if (attrs.Length == 0) {
                         continue;
                     }
-                    MessageAttribute messageAttribute = attrs[0] as MessageAttribute;
+                    MessageAttribute messageAttribute = attrs[0] as MessageAttribute; // 【0】？ 
                     if (messageAttribute == null) {
                         continue;
                     }
@@ -27,7 +27,7 @@ namespace ET {
                     }
                     // 检查request response
                     if (typeof (IRequest).IsAssignableFrom(type)) { // 它会进入到这个分支里面来
-                        if (typeof (IActorLocationMessage).IsAssignableFrom(type)) {
+                        if (typeof (IActorLocationMessage).IsAssignableFrom(type)) { // 这里为什么一定要是这个类型，才能加进来，不是统计少了太多了吗？
                             self.requestResponse.Add(type, typeof(ActorResponse));
                             continue;
                         }

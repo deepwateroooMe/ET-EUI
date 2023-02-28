@@ -5,6 +5,9 @@ namespace ET {
     // 1.不存在该用户，那么我们应该将它记录到我们的LoginAccount的字典里面
     // 2.如果存在用户，那么就拿到它的Gate网关地址，向Gate网关发消息，让玩家下线
     [ActorMessageHandler]  // 下面的两个协议要自己补上 proto 里面的
+    // 因为这个服务器端的处理逻辑是参考网上的部分源码，连消息的定义都是自己添加的。它的逻辑是不完整的，只编写了服务器端，没有编写客户端。【感觉客户端还是需要妥善处理的】
+    // 或者，我可以把这部分的逻辑全部删除掉。
+    // 这里仍然是不明白：为什么客户端会出现这个问题。再换个例子看一下
     public class A2L_LoginAccountRequestHandler : AMActorRpcHandler<Scene, A2L_LoginAccountRequest, L2A_LoginAccountResponse> {
         protected override async ETTask Run(Scene scene, A2L_LoginAccountRequest request, L2A_LoginAccountResponse response, Action reply) {
             // 1. 拿到 accountId
@@ -13,7 +16,7 @@ namespace ET {
             using (await CoroutineLockComponent.Instance.Wait(CoroutineLockType.LoginCenterLock, accountId.GetHashCode())) {
                 // 3. 如果在注册登录服不存在当前用户的信息，就表示可以登录（要是还没有注册呢？）
                 if (!scene.GetComponent<LoginInfoRecordComponent>().IsExist(accountId)) { // 这个类没有，需要重新定义生成一下
-                    // TODO: 添加用户到 LoginAccount 里面
+                    // TODO: 添加用户到 LoginAccount 里面，应该是添加到 LoginInfoRecordComponent 里面去，那么它的分区 zone 是如何获得的？还是说要随机产生呢？区服？概念不清楚 
                     response.Error = ErrorCode.ERR_Success;
                     reply();
                     return ;

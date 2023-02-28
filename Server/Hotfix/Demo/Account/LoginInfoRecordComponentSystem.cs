@@ -23,5 +23,9 @@ namespace ET {
                 return zone;
             return -1;
         }
+        // 既然是可以 Get(), 当然也是可以添加的, 添加就是加键值对呀
+        public static void Add(this LoginInfoRecordComponent self, long accountId, int zone) { // 这里的返回类型可以再检查一下。暂时还没有使用的地方
+            self.accountsZones.Add(accountId, zone);
+        }
     }
 }
