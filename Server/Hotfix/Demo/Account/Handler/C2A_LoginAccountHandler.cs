@@ -3,6 +3,8 @@ using System.Text.RegularExpressions;
 namespace ET {
     [FriendClassAttribute(typeof(ET.Account))]
     public class C2A_LoginAccountHandler : AMRpcHandler<C2A_LoginAccount, A2C_LoginAccount> {
+        // 也错的是，在这个方法里面，那么，把这里面的日志多打印一点儿出来
+        
         protected override async ETTask Run(Session session, C2A_LoginAccount request, A2C_LoginAccount response, Action reply) {
             // TODO: 这里暂时不处理，等处理完客户端逻辑，再回来写
             // 有过服务器开发经验的程序员估计会发现我们的服务器处理逻辑有很多问题，对数据的验证还有session的使用过于草率。能跑，但是不安全            
@@ -12,9 +14,10 @@ namespace ET {
                 session.Dispose();
                 return;
             }
-            // 2. 制裁掉计时断开的组件（避免自动断开连接），代表连接通过了验证
+            // 2. 取消掉计时断开的组件（避免自动断开连接），代表连接通过了验证
             session.RemoveComponent<SessionAcceptTimeoutComponent>();
             // 通过判断是否加载了 SessionLockingComponent 来确定是否是多次消息
+            Log.Error($"(session.GetComponent<SessionLockingComponent>() != null): {(session.GetComponent<SessionLockingComponent>() != null)}");
             if (session.GetComponent<SessionLockingComponent>() != null) {
                 response.Error = ErrorCode.ERR_RequestRepeatedly; // 重复点击了，先前的请求正在处理中，后续点击不处理
                 reply();
@@ -30,22 +33,26 @@ namespace ET {
                 session.Disconnect().Coroutine();
                 return;
             }
-            if (!Regex.IsMatch(request.AccountName.Trim(), @"^(?=.*[0-9].*)(?=.*[A-Z].*)(?=.*[a-z].*).{6,15}$")) {
-                // 帐号不满足正则表达式
-                response.Error = ErrorCode.ERR_LoginInfoError;
-                reply();
-                // session.Dispose();
-                session.Disconnect().Coroutine();
-                return;
-            }
-            if (!Regex.IsMatch(request.Password.Trim(), @"^(?=.*[0-9].*)(?=.*[A-Z].*)(?=.*[a-z].*).{6,15}$")) {
-                // 密码不满足正则表达式
-                response.Error = ErrorCode.ERR_LoginInfoError;
-                reply();
-                // session.Dispose();
-                session.Disconnect().Coroutine();
-                return;
-            }
+            // // 这里的正则表达式：自己根本就没有看呀，那么极有可能就是说，我的用户名与密码是不符合它的要求的。也就是说，我现有的错误是从这下面的这个分支抛出来的
+            // // 处理的办法很简单嘛：就是不管什么正则表达式，凡数据库里没有的，就自动注册，否则就登录呀
+            // if (!Regex.IsMatch(request.AccountName.Trim(), @"^(?=.*[0-9].*)(?=.*[A-Z].*)(?=.*[a-z].*).{6,15}$")) {
+            //     // 帐号不满足正则表达式
+            //     response.Error = ErrorCode.ERR_LoginInfoError;
+            //     Log.Error($" 用户名不符合正则表达式： response.Error: {response.Error}");
+            //     reply();
+            //     // session.Dispose();
+            //     session.Disconnect().Coroutine();
+            //     return;
+            // }
+            // if (!Regex.IsMatch(request.Password.Trim(), @"^(?=.*[0-9].*)(?=.*[A-Z].*)(?=.*[a-z].*).{6,15}$")) {
+            //     // 密码不满足正则表达式
+            //     response.Error = ErrorCode.ERR_LoginInfoError;
+            //     Log.Error($" 密码不符合正则表达式： response.Error: {response.Error}");
+            //     reply();
+            //     // session.Dispose();
+            //     session.Disconnect().Coroutine();
+            //     return;
+            // }
             // 4. 通过游戏服务器查询帐户是否存在：下面感觉奇怪，它说是个链表，就拿第一个？ 这里的逻辑是，即使是黑名单，也被保存在数据库，
             // 把后面的 异步逻辑块 用using关键字括起来。 using 关键定，使用完会自动释放组件
             using (session.AddComponent<SessionLockingComponent>()) {
@@ -89,8 +96,11 @@ namespace ET {
                         account.Password = request.Password;
                         account.CreateTime = TimeHelper.ServerNow();
                         account.AccountType = (int)AccountType.General;
+                        Log.Error($"account.AccountName: {account.AccountName}");
+                        Log.Error($"account.Password 用户保存进数据库之前: {account.Password}");
                         // 从下面一句可以看到，接下来要处理的就是，MongoDB 数据库类的查询与保存等操作的封装与精简简化
                         await DBManagerComponent.Instance.GetZoneDB(session.DomainZone()).Save<Account>(account); // 异步保存进数据库
+                        Log.Error($"account.Password 保存数据库之后: {account.Password}");
                     }
                     // 走到这一步就代表我们登录成功了
                     // 顶号操作：根据帐号 ID 拿到当前的 sessionInstanceID
@@ -111,7 +121,6 @@ namespace ET {
                     session.DomainScene().GetComponent<TokenComponent>().Remove(account.Id);
                     session.DomainScene().GetComponent<TokenComponent>().Add(account.Id, Token);
 // 更新了：10 分钟计时算起
-                    // 不知道，这里加得对不对，应该是对的
                     // 添加上计时器组件：十分钟自动销毁当前会话框
                     // 当客户端忽然掉线，服务器会一直保留先前的 session 会话框；客户端再次登录后会创建新的会话框，并重新计时
                     // 如果会话框一直保留，会占用系统资源，服务器的内存会满，会崩溃

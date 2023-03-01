@@ -169,11 +169,11 @@ namespace ET {
                 T v = this.value;
                 this.Recycle();
                 return v;
-            case AwaiterStatus.Faulted:
+            case AwaiterStatus.Faulted: // <<<<<<<<<<<<<<<<<<<< 如果出错，这里是需要抛锚的。那么需要去找服务器端逻辑
                 ExceptionDispatchInfo c = this.callback as ExceptionDispatchInfo;
                 this.callback = null;
                 this.Recycle();
-                c?.Throw();
+                c?.Throw(); // <<<<<<<<<<<<<<<<<<<< 它说是，这里出错了，会从这里抛出错误
                 return default;
             default:
                 throw new NotSupportedException("ETask does not allow call GetResult directly when task not completed. Please use 'await'.");
