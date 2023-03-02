@@ -23,7 +23,6 @@ namespace ET {
                 self.LastRecvTime = timeNow;
                 self.LastSendTime = timeNow;
                 self.requestCallbacks.Clear();
-            
                 Log.Info($"session create: zone: {self.DomainZone()} id: {self.Id} {timeNow} ");
             }
         }

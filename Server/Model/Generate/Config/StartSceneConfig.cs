@@ -75,22 +75,22 @@ namespace ET
     [ProtoContract]
 	public partial class StartSceneConfig: ProtoObject, IConfig
 	{
-		/// <summary>Id</summary>
+		// <summary>Id</summary>
 		[ProtoMember(1)]
 		public int Id { get; set; }
-		/// <summary>所属进程</summary>
+		// <summary>所属进程</summary>
 		[ProtoMember(2)]
 		public int Process { get; set; }
-		/// <summary>所属区</summary>
+		// <summary>所属区</summary>
 		[ProtoMember(3)]
 		public int Zone { get; set; }
-		/// <summary>类型</summary>
+		// <summary>类型</summary>
 		[ProtoMember(4)]
 		public string SceneType { get; set; }
-		/// <summary>名字</summary>
+		// <summary>名字</summary>
 		[ProtoMember(5)]
 		public string Name { get; set; }
-		/// <summary>外网端口</summary>
+		// <summary>外网端口</summary>
 		[ProtoMember(6)]
 		public int OuterPort { get; set; }
 

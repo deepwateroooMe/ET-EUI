@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
 namespace ET {
+    
     public static  class DlgLoginSystem {
         // 注册、调用客户端登录事件的方法
         public static void RegisterUIEvent(this DlgLogin self) {

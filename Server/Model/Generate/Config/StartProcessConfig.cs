@@ -75,16 +75,16 @@ namespace ET
     [ProtoContract]
 	public partial class StartProcessConfig: ProtoObject, IConfig
 	{
-		/// <summary>Id</summary>
+		// <summary>Id</summary>
 		[ProtoMember(1)]
 		public int Id { get; set; }
-		/// <summary>所属机器</summary>
+		// <summary>所属机器</summary>
 		[ProtoMember(2)]
 		public int MachineId { get; set; }
-		/// <summary>内网端口</summary>
+		// <summary>内网端口</summary>
 		[ProtoMember(3)]
 		public int InnerPort { get; set; }
-		/// <summary>程序名</summary>
+		// <summary>程序名</summary>
 		[ProtoMember(4)]
 		public string AppName { get; set; }
 

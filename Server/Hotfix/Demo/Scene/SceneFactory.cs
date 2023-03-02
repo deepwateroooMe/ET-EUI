@@ -15,8 +15,9 @@ namespace ET {
                     scene.AddComponent<NetKcpComponent, IPEndPoint, int>(startSceneConfig.OuterIPPort, SessionStreamDispatcherType.SessionStreamDispatcherServerOuter);
                     scene.AddComponent<TokenComponent>(); // 就是有了一个最简单的10 分钟令牌有效会话框 
                     scene.AddComponent<AccountSessionsComponent>();
-                    scene.AddComponent<ServerInfoManagerComponent>();
-                    break;
+                    /* scene.AddComponent<ServerInfoManagerComponent>(); // 这里不知道数据库里面是怎么添加的.那么就是相当于没有添加这个模块
+                     */
+                     break;
                 case SceneType.Realm:
                     scene.AddComponent<NetKcpComponent, IPEndPoint, int>(startSceneConfig.OuterIPPort, SessionStreamDispatcherType.SessionStreamDispatcherServerOuter);
                     break;

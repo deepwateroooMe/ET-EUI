@@ -1,10 +1,11 @@
 namespace ET {
-    [ObjectSystem]
-    public class ServerInfoManagerComponentAwakeSystem : AwakeSystem<ServerInfoManagerComponent> {
-        public override void Awake(ServerInfoManagerComponent self) {
-            self.Awake().Coroutine();
-        }
-    }
+    // 狠过瘾：这就是你神添加，造成的后果！！！
+    // [ObjectSystem]
+    // public class ServerInfoManagerComponentAwakeSystem : AwakeSystem<ServerInfoManagerComponent> {
+    //     public override void Awake(ServerInfoManagerComponent self) {
+    //         self.Awake().Coroutine();
+    //     }
+    // }
     public class ServerInfoManagerComponentDestroySystem : DestroySystem<ServerInfoManagerComponent> {
         public override void Destroy(ServerInfoManagerComponent self) {
             foreach (var serverInfo in self.serverInfos)

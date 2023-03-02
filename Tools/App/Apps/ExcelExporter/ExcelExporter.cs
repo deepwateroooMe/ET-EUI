@@ -70,8 +70,9 @@ namespace ET {
             try {
                 // 防止编译时裁剪掉protobuf
                 ProtoBuf.WireType.Fixed64.ToString();
-            
-                ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+
+				template = File.ReadAllText("Template.txt");// 我加这里的
+				ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
                 if (Directory.Exists(ClientClassDir)) {
                     Directory.Delete(ClientClassDir, true);
                 }
