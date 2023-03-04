@@ -14,7 +14,7 @@ namespace ET
 		private Socket socket;
 		private SocketAsyncEventArgs innArgs = new SocketAsyncEventArgs();
 		private SocketAsyncEventArgs outArgs = new SocketAsyncEventArgs();
-
+		
 		private readonly CircularBuffer recvBuffer = new CircularBuffer();
 		private readonly CircularBuffer sendBuffer = new CircularBuffer();
 

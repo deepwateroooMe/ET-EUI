@@ -17,8 +17,8 @@ namespace ET {
             // 2. 取消掉计时断开的组件（避免自动断开连接），代表连接通过了验证
             session.RemoveComponent<SessionAcceptTimeoutComponent>();
             // 通过判断是否加载了 SessionLockingComponent 来确定是否是多次消息
-            Log.Error($"(session.GetComponent<SessionLockingComponent>() != null): {(session.GetComponent<SessionLockingComponent>() != null)}");
-            if (session.GetComponent<SessionLockingComponent>() != null) {
+/*             Log.Error($"(session.GetComponent<SessionLockingComponent>() != null): {(session.GetComponent<SessionLockingComponent>() != null)}");
+ */            if (session.GetComponent<SessionLockingComponent>() != null) {
                 response.Error = ErrorCode.ERR_RequestRepeatedly; // 重复点击了，先前的请求正在处理中，后续点击不处理
                 reply();
                 session.Disconnect().Coroutine();
@@ -90,16 +90,18 @@ namespace ET {
                         }
                         session.AddChild(account); // 感觉直接接在这个父物件的下面 // <<<<<<<<<<<<<<<<<<<<
                     } else { // 帐房在数据库中不存在，就自动注册
+// <<<<<<<<<<<<<<<<<<<<
                         account = session.AddChild<Account>();
                         account.AccountName = request.AccountName.Trim();
                         account.Password = request.Password;
                         account.CreateTime = TimeHelper.ServerNow();
                         account.AccountType = (int)AccountType.General;
-                        Log.Error($"account.AccountName: {account.AccountName}");
-                        Log.Error($"account.Password 用户保存进数据库之前: {account.Password}");
-                        // 从下面一句可以看到，接下来要处理的就是，MongoDB 数据库类的查询与保存等操作的封装与精简简化
+                        //Log.Error($"account.AccountName: {account.AccountName}");
+/*                         Log.Error($"account.Password 用户保存进数据库之前: {account.Password}");
+ */                        // 从下面一句可以看到，接下来要处理的就是，MongoDB 数据库类的查询与保存等操作的封装与精简简化
                         await DBManagerComponent.Instance.GetZoneDB(session.DomainZone()).Save<Account>(account); // 异步保存进数据库
-                    }
+/*                         Log.Error($"account.Password 保存数据库之后: {account.Password}");
+ */                    }
                     // 走到这一步就代表我们登录成功了
                     // 顶号操作：根据帐号 ID 拿到当前的 sessionInstanceID
                     long AccountSessionsInstanceId = session.DomainScene().GetComponent<AccountSessionsComponent>().Get(account.Id);
@@ -120,11 +122,11 @@ namespace ET {
                     session.DomainScene().GetComponent<TokenComponent>().Add(account.Id, Token);
 // 更新了：10 分钟计时算起
                     // 添加上计时器组件：十分钟自动销毁当前会话框
-                    // 当客户端忽然掉线，服务器会一直保留先前的 session 会话框（这里的逻辑是，保留但是最多保留十分钟才对）；客户端再次登录后会创建新的会话框，并重新计时
+                    // 当客户端忽然掉线，服务器会一直保留先前的 session 会话框；客户端再次登录后会创建新的会话框，并重新计时 []
                     // 如果会话框一直保留，会占用系统资源，服务器的内存会满，会崩溃
                     session.AddComponent<AccountCheckOutTimeComponent, long>(account.Id);
 
-                    // 7. 返回消息；再跟进去看客户端的消息处理
+                    // 7. 返回消息
                     response.AccountId = account.Id;
                     response.Token = Token;
                     reply();

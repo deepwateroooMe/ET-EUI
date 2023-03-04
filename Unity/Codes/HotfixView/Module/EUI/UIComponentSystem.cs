@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 namespace ET {
+
     [ObjectSystem]
     public class UIComponentAwakeSystem : AwakeSystem<UIComponent> {
         public override void Awake(UIComponent self) {
@@ -20,7 +21,6 @@ namespace ET {
     [FriendClass(typeof(UIBaseWindow))]
     [FriendClass(typeof(UIComponent))]
     public static class UIComponentSystem {
-
         public static void Awake(this UIComponent self) {
             self.IsPopStackWndStatus = false;
             self.AllWindowsDic?.Clear();
@@ -32,6 +32,7 @@ namespace ET {
         public static bool IsWindowVisible(this UIComponent self,WindowID id) {
             return self.VisibleWindowsDic.ContainsKey((int)id);
         }
+        
         // 根据泛型获得UI窗口逻辑组件
         public static T GetDlgLogic<T>(this UIComponent self,bool isNeedShowState = false) where  T : Entity,IUILogic {
             WindowID windowsId = self.GetWindowIdByGeneric<T>();
@@ -80,7 +81,8 @@ namespace ET {
         // <param name="id"></param>
         public static void ShowStackWindow(this UIComponent self,WindowID id)  {
             self.StackWindowsQueue.Enqueue(id);
-            if (self.IsPopStackWndStatus) {
+            if (self.IsPopStackWndStatus)
+            {
                 return;
             }
             self.IsPopStackWndStatus = true;
@@ -259,7 +261,7 @@ namespace ET {
             UIEventComponent.Instance.GetUIEventHandler(id).OnShowWindow(baseWindow,contextData);
             
             self.VisibleWindowsDic[(int)id] = baseWindow;
-            Debug.Log("<color=magenta>### current Navigation window </color>" + baseWindow.WindowID.ToString()); // <<<<<<<<<<<<<<<<<<<< 这里的日志是从这里打出来的
+            Debug.Log("<color=magenta>### current Navigation window </color>" + baseWindow.WindowID.ToString());
         }
         
         public static void Destroy(this UIComponent self) {

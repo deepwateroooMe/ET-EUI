@@ -42,7 +42,7 @@ namespace ET {
             // Log.Debug("登陆gate成功!");
             // Game.EventSystem.PublishAsync(new EventType.LoginFinish() {ZoneScene = zoneScene}).Coroutine();
 
-            // 如果成功，把 session 保留给 zoneScene, 作为通讯接口。【这些，就明显看见，服务器的格局小了很多】
+            // 如果成功，把 session 保留给 zoneScene, 作为通讯接口。
             zoneScene.AddComponent<SessionComponent>().Session = accountSession;
             // 记录拿到的帐房信息
             zoneScene.GetComponent<AccountInfoComponent>().Token = a2C_LoginAccount.Token;
@@ -53,6 +53,7 @@ namespace ET {
             //     Log.Error(e);
             // }
         }
+        // 因为我要把整个模块相关的去掉，就不用使用这个方法
         public static async ETTask<int> GetServerInfos(Scene zoneScene) {
             A2C_GetServerInfos a2C_GetServerInfo = null;
             try {
