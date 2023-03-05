@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
-
 namespace ET {
     public readonly struct RpcInfo {
         public readonly IRequest Request;
@@ -30,16 +29,13 @@ namespace ET {
         public class SessionDestroySystem: DestroySystem<Session> {
             public override void Destroy(Session self) {
                 self.AService.RemoveChannel(self.Id);
-            
                 foreach (RpcInfo responseCallback in self.requestCallbacks.Values.ToArray()) {
                     responseCallback.Tcs.SetException(new RpcException(self.Error, $"session dispose: {self.Id} {self.RemoteAddress}"));
                 }
                 Log.Info($"session dispose: {self.RemoteAddress} id: {self.Id} ErrorCode: {self.Error}, please see ErrorCode.cs! {TimeHelper.ClientNow()}");
-            
                 self.requestCallbacks.Clear();
             }
         }
-        
         public static void OnRead(this Session self, ushort opcode, IResponse response) {
             OpcodeHelper.LogMsg(self.DomainZone(), opcode, response);
             
@@ -53,14 +49,12 @@ namespace ET {
             }
             action.Tcs.SetResult(response);
         }
-        
         public static async ETTask<IResponse> Call(this Session self, IRequest request, ETCancellationToken cancellationToken) {
             int rpcId = ++Session.RpcId;
             RpcInfo rpcInfo = new RpcInfo(request);
             self.requestCallbacks[rpcId] = rpcInfo;
             request.RpcId = rpcId;
             self.Send(request);
-            
             void CancelAction() {
                 if (!self.requestCallbacks.TryGetValue(rpcId, out RpcInfo action)) {
                     return;
@@ -95,22 +89,20 @@ namespace ET {
         public static void Send(this Session self, IMessage message) {
             self.Send(0, message);
         }
-        
         public static void Send(this Session self, long actorId, IMessage message) {
             (ushort opcode, MemoryStream stream) = MessageSerializeHelper.MessageToStream(message); // 这里底层是，序列化到内存流，再从内存流上发消息
             OpcodeHelper.LogMsg(self.DomainZone(), opcode, message);
             self.Send(actorId, stream); // 从内存流上将消息发出去
         }
-        
         public static void Send(this Session self, long actorId, MemoryStream memoryStream) {
             self.LastSendTime = TimeHelper.ClientNow();
             self.AService.SendStream(self.Id, actorId, memoryStream);
         }
     }
+    
     [ChildType(typeof(Account))] // : 这个类型好像还不能这么申明！！！这是Model 层，其它子类型都不曾这么添加，一定是添加的地方不对
     public sealed class Session: Entity, IAwake<AService>, IDestroy {
         public AService AService;
-        
         public static int RpcId {
             get;
             set;
