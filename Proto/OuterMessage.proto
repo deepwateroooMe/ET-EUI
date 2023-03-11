@@ -1,6 +1,21 @@
 syntax = "proto3";
 package ET;
 
+//ResponseType G2C_Ping
+message C2G_Ping // IRequest
+{
+	int32 RpcId = 90;
+}
+
+message G2C_Ping // IResponse
+{
+	int32 RpcId = 90;
+	int32 Error = 91;
+	string Message = 92;
+
+	int64 Time = 1;
+}
+
 //ResponseType L2A_LoginAccountResponse
 message A2L_LoginAccountRequest // IActorRequest
 {
@@ -137,6 +152,40 @@ message MoveInfo
 	int32 TurnSpeed = 8;
 }
 
+//ResponseType R2C_Login
+message C2R_Login // IRequest
+{
+	int32 RpcId = 90;
+	string  Account = 1;  // 帐号
+	string  Password = 2;  // 密码
+}
+
+message R2C_Login // IResponse
+{
+	int32 RpcId = 90;
+	int32 Error = 91;
+	string Message = 92;
+	string Address = 1;
+	int64 Key = 2;
+	int64 GateId = 3;
+}
+
+//ResponseType G2C_LoginGate
+message C2G_LoginGate // IRequest
+{
+	int32 RpcId = 90;
+	int64 Key = 1;  // 帐号
+	int64 GateId = 2;
+}
+
+message G2C_LoginGate // IResponse
+{
+	int32 RpcId = 90;
+	int32 Error = 91;
+	string Message = 92;
+	int64 PlayerId = 1;
+}
+
 message UnitInfo
 {
 	int64 UnitId = 1;
@@ -216,21 +265,6 @@ message M2C_Stop // IActorMessage
 	float W = 9;
 }
 
-//ResponseType G2C_Ping
-message C2G_Ping // IRequest
-{
-	int32 RpcId = 90;
-}
-
-message G2C_Ping // IResponse
-{
-	int32 RpcId = 90;
-	int32 Error = 91;
-	string Message = 92;
-
-	int64 Time = 1;
-}
-
 
 message G2C_Test // IMessage
 {
@@ -249,40 +283,6 @@ message M2C_Reload // IResponse
 	int32 RpcId = 90;
 	int32 Error = 91;
 	string Message = 92;
-}
-
-//ResponseType R2C_Login
-message C2R_Login // IRequest
-{
-	int32 RpcId = 90;
-	string  Account = 1;  // 帐号
-	string  Password = 2;  // 密码
-}
-
-message R2C_Login // IResponse
-{
-	int32 RpcId = 90;
-	int32 Error = 91;
-	string Message = 92;
-	string Address = 1;
-	int64 Key = 2;
-	int64 GateId = 3;
-}
-
-//ResponseType G2C_LoginGate
-message C2G_LoginGate // IRequest
-{
-	int32 RpcId = 90;
-	int64 Key = 1;  // 帐号
-	int64 GateId = 2;
-}
-
-message G2C_LoginGate // IResponse
-{
-	int32 RpcId = 90;
-	int32 Error = 91;
-	string Message = 92;
-	int64 PlayerId = 1;
 }
 
 message G2C_TestHotfixMessage // IMessage

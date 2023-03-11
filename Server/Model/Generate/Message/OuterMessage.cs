@@ -3,6 +3,34 @@ using ProtoBuf;
 using System.Collections.Generic;
 namespace ET
 {
+	[ResponseType(nameof(G2C_Ping))]
+	[Message(OuterOpcode.C2G_Ping)]
+	[ProtoContract]
+	public partial class C2G_Ping: Object, IRequest
+	{
+		[ProtoMember(90)]
+		public int RpcId { get; set; }
+
+	}
+
+	[Message(OuterOpcode.G2C_Ping)]
+	[ProtoContract]
+	public partial class G2C_Ping: Object, IResponse
+	{
+		[ProtoMember(90)]
+		public int RpcId { get; set; }
+
+		[ProtoMember(91)]
+		public int Error { get; set; }
+
+		[ProtoMember(92)]
+		public string Message { get; set; }
+
+		[ProtoMember(1)]
+		public long Time { get; set; }
+
+	}
+
 	[ResponseType(nameof(L2A_LoginAccountResponse))]
 	[Message(OuterOpcode.A2L_LoginAccountRequest)]
 	[ProtoContract]
@@ -308,6 +336,80 @@ namespace ET
 
 	}
 
+	[ResponseType(nameof(R2C_Login))]
+	[Message(OuterOpcode.C2R_Login)]
+	[ProtoContract]
+	public partial class C2R_Login: Object, IRequest
+	{
+		[ProtoMember(90)]
+		public int RpcId { get; set; }
+
+		[ProtoMember(1)]
+		public string Account { get; set; }
+
+		[ProtoMember(2)]
+		public string Password { get; set; }
+
+	}
+
+	[Message(OuterOpcode.R2C_Login)]
+	[ProtoContract]
+	public partial class R2C_Login: Object, IResponse
+	{
+		[ProtoMember(90)]
+		public int RpcId { get; set; }
+
+		[ProtoMember(91)]
+		public int Error { get; set; }
+
+		[ProtoMember(92)]
+		public string Message { get; set; }
+
+		[ProtoMember(1)]
+		public string Address { get; set; }
+
+		[ProtoMember(2)]
+		public long Key { get; set; }
+
+		[ProtoMember(3)]
+		public long GateId { get; set; }
+
+	}
+
+	[ResponseType(nameof(G2C_LoginGate))]
+	[Message(OuterOpcode.C2G_LoginGate)]
+	[ProtoContract]
+	public partial class C2G_LoginGate: Object, IRequest
+	{
+		[ProtoMember(90)]
+		public int RpcId { get; set; }
+
+		[ProtoMember(1)]
+		public long Key { get; set; }
+
+		[ProtoMember(2)]
+		public long GateId { get; set; }
+
+	}
+
+	[Message(OuterOpcode.G2C_LoginGate)]
+	[ProtoContract]
+	public partial class G2C_LoginGate: Object, IResponse
+	{
+		[ProtoMember(90)]
+		public int RpcId { get; set; }
+
+		[ProtoMember(91)]
+		public int Error { get; set; }
+
+		[ProtoMember(92)]
+		public string Message { get; set; }
+
+		[ProtoMember(1)]
+		public long PlayerId { get; set; }
+
+	}
+
 	[Message(OuterOpcode.UnitInfo)]
 	[ProtoContract]
 	public partial class UnitInfo: Object
@@ -476,34 +578,6 @@ namespace ET
 
 	}
 
-	[ResponseType(nameof(G2C_Ping))]
-	[Message(OuterOpcode.C2G_Ping)]
-	[ProtoContract]
-	public partial class C2G_Ping: Object, IRequest
-	{
-		[ProtoMember(90)]
-		public int RpcId { get; set; }
-
-	}
-
-	[Message(OuterOpcode.G2C_Ping)]
-	[ProtoContract]
-	public partial class G2C_Ping: Object, IResponse
-	{
-		[ProtoMember(90)]
-		public int RpcId { get; set; }
-
-		[ProtoMember(91)]
-		public int Error { get; set; }
-
-		[ProtoMember(92)]
-		public string Message { get; set; }
-
-		[ProtoMember(1)]
-		public long Time { get; set; }
-
-	}
-
 	[Message(OuterOpcode.G2C_Test)]
 	[ProtoContract]
 	public partial class G2C_Test: Object, IMessage
@@ -538,80 +612,6 @@ namespace ET
 
 		[ProtoMember(92)]
 		public string Message { get; set; }
-
-	}
-
-	[ResponseType(nameof(R2C_Login))]
-	[Message(OuterOpcode.C2R_Login)]
-	[ProtoContract]
-	public partial class C2R_Login: Object, IRequest
-	{
-		[ProtoMember(90)]
-		public int RpcId { get; set; }
-
-		[ProtoMember(1)]
-		public string Account { get; set; }
-
-		[ProtoMember(2)]
-		public string Password { get; set; }
-
-	}
-
-	[Message(OuterOpcode.R2C_Login)]
-	[ProtoContract]
-	public partial class R2C_Login: Object, IResponse
-	{
-		[ProtoMember(90)]
-		public int RpcId { get; set; }
-
-		[ProtoMember(91)]
-		public int Error { get; set; }
-
-		[ProtoMember(92)]
-		public string Message { get; set; }
-
-		[ProtoMember(1)]
-		public string Address { get; set; }
-
-		[ProtoMember(2)]
-		public long Key { get; set; }
-
-		[ProtoMember(3)]
-		public long GateId { get; set; }
-
-	}
-
-	[ResponseType(nameof(G2C_LoginGate))]
-	[Message(OuterOpcode.C2G_LoginGate)]
-	[ProtoContract]
-	public partial class C2G_LoginGate: Object, IRequest
-	{
-		[ProtoMember(90)]
-		public int RpcId { get; set; }
-
-		[ProtoMember(1)]
-		public long Key { get; set; }
-
-		[ProtoMember(2)]
-		public long GateId { get; set; }
-
-	}
-
-	[Message(OuterOpcode.G2C_LoginGate)]
-	[ProtoContract]
-	public partial class G2C_LoginGate: Object, IResponse
-	{
-		[ProtoMember(90)]
-		public int RpcId { get; set; }
-
-		[ProtoMember(91)]
-		public int Error { get; set; }
-
-		[ProtoMember(92)]
-		public string Message { get; set; }
-
-		[ProtoMember(1)]
-		public long PlayerId { get; set; }
 
 	}
 

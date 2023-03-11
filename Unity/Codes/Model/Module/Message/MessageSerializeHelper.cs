@@ -1,19 +1,17 @@
-﻿using System;
+using System;
 using System.IO;
+namespace ET {
+    public static class MessageSerializeHelper {
+        private const string TAG = "MessageSerializeHelper";
 
-namespace ET
-{
-    public static class MessageSerializeHelper
-    {
-        public static object DeserializeFrom(ushort opcode, Type type, MemoryStream memoryStream)
-        {
-            if (opcode < OpcodeRangeDefine.PbMaxOpcode)
-            {
-                return ProtobufHelper.FromStream(type, memoryStream);
+        public static object DeserializeFrom(ushort opcode, Type type, MemoryStream memoryStream) {
+            if (opcode < OpcodeRangeDefine.PbMaxOpcode) {
+                Log.ILog.Debug(TAG + " opcode: " + opcode);
+                Log.ILog.Debug(TAG + " type.Name: " + type.Name); // <<<<<<<<<< 这里的类型居然是会错的
+                Log.ILog.Debug(TAG + " memoryStream.Length.ToString(): " + memoryStream.Length.ToString());
+                return ProtobufHelper.FromStream(type, memoryStream); // 应该是会进到这里面的来的
             }
-            
-            if (opcode >= OpcodeRangeDefine.JsonMinOpcode)
-            {
+            if (opcode >= OpcodeRangeDefine.JsonMinOpcode) {
                 return JsonHelper.FromJson(type, memoryStream.GetBuffer().ToStr((int)memoryStream.Position, (int)(memoryStream.Length - memoryStream.Position)));
             }
 #if NOT_UNITY
@@ -23,18 +21,13 @@ namespace ET
 #endif
         }
 
-        public static void SerializeTo(ushort opcode, object obj, MemoryStream memoryStream)
-        {
-            try
-            {
-                if (opcode < OpcodeRangeDefine.PbMaxOpcode)
-                {
+        public static void SerializeTo(ushort opcode, object obj, MemoryStream memoryStream) {
+            try {
+                if (opcode < OpcodeRangeDefine.PbMaxOpcode) {
                     ProtobufHelper.ToStream(obj, memoryStream);
                     return;
                 }
-
-                if (opcode >= OpcodeRangeDefine.JsonMinOpcode)
-                {
+                if (opcode >= OpcodeRangeDefine.JsonMinOpcode) {
                     string s = JsonHelper.ToJson(obj);
                     byte[] bytes = s.ToUtf8();
                     memoryStream.Write(bytes, 0, bytes.Length);
@@ -46,33 +39,24 @@ namespace ET
                 throw new Exception($"client no message: {opcode}");
 #endif
             }
-            catch (Exception e)
-            {
+            catch (Exception e) {
                 throw new Exception($"SerializeTo error: {opcode}", e);
             }
-
         }
 
-        public static MemoryStream GetStream(int count = 0)
-        {
+        public static MemoryStream GetStream(int count = 0) {
             MemoryStream stream;
-            if (count > 0)
-            {
+            if (count > 0) {
                 stream = new MemoryStream(count);
-            }
-            else
-            {
+            } else {
                 stream = new MemoryStream();
             }
-
             return stream;
         }
         
-        public static (ushort, MemoryStream) MessageToStream(object message)
-        {
+        public static (ushort, MemoryStream) MessageToStream(object message) {
             int headOffset = Packet.ActorIdLength;
             MemoryStream stream = GetStream(headOffset + Packet.OpcodeLength);
-
             ushort opcode = OpcodeTypeComponent.Instance.GetOpcode(message.GetType());
             
             stream.Seek(headOffset + Packet.OpcodeLength, SeekOrigin.Begin);

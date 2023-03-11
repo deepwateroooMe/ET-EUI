@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 namespace ET {
+    
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct IdStruct {
         public uint Time;    // 30bit
@@ -30,6 +31,7 @@ namespace ET {
             return $"process: {this.Process}, time: {this.Time}, value: {this.Value}";
         }
     }
+    
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct InstanceIdStruct {
         public uint Time;   // 当年开始的tick 28bit
@@ -169,53 +171,53 @@ namespace ET {
             } else {
                 ++this.instanceIdValue;
                 
-                if (this.instanceIdValue > IdGenerater.Mask18bit - 1) // 18bit {
+                if (this.instanceIdValue > IdGenerater.Mask18bit - 1) { // 18bit
                     ++this.lastInstanceIdTime; // 借用下一秒
-                this.instanceIdValue = 0;
-                Log.Error($"instanceid count per sec overflow: {time} {this.lastInstanceIdTime}");
+                    this.instanceIdValue = 0;
+                    Log.Error($"instanceid count per sec overflow: {time} {this.lastInstanceIdTime}");
+                }
             }
+            InstanceIdStruct instanceIdStruct = new InstanceIdStruct(this.lastInstanceIdTime, Game.Options.Process, this.instanceIdValue);
+            return instanceIdStruct.ToLong();
         }
-        InstanceIdStruct instanceIdStruct = new InstanceIdStruct(this.lastInstanceIdTime, Game.Options.Process, this.instanceIdValue);
-        return instanceIdStruct.ToLong();
-    }
-    public long GenerateId() {
-        uint time = TimeSince2020();
-        if (time > this.lastIdTime) {
-            this.lastIdTime = time;
-            this.value = 0;
-        } else {
-            ++this.value;
-                
-            if (value > ushort.MaxValue - 1) {
+        public long GenerateId() {
+            uint time = TimeSince2020();
+            if (time > this.lastIdTime) {
+                this.lastIdTime = time;
                 this.value = 0;
-                ++this.lastIdTime; // 借用下一秒
-                Log.Error($"id count per sec overflow: {time} {this.lastIdTime}");
-            }
-        }
-            
-        IdStruct idStruct = new IdStruct(this.lastIdTime, Game.Options.Process, value);
-        return idStruct.ToLong();
-    }
-        
-    public long GenerateUnitId(int zone) {
-        if (zone > MaxZone) {
-            throw new Exception($"zone > MaxZone: {zone}");
-        }
-        uint time = TimeSince2020();
-        if (time > this.lastUnitIdTime) {
-            this.lastUnitIdTime = time;
-            this.unitIdValue = 0;
-        } else {
-            ++this.unitIdValue;
+            } else {
+                ++this.value;
                 
-            if (this.unitIdValue > ushort.MaxValue - 1) {
-                this.unitIdValue = 0;
-                ++this.lastUnitIdTime; // 借用下一秒
-                Log.Error($"unitid count per sec overflow: {time} {this.lastUnitIdTime}");
+                if (value > ushort.MaxValue - 1) {
+                    this.value = 0;
+                    ++this.lastIdTime; // 借用下一秒
+                    Log.Error($"id count per sec overflow: {time} {this.lastIdTime}");
+                }
             }
+            
+            IdStruct idStruct = new IdStruct(this.lastIdTime, Game.Options.Process, value);
+            return idStruct.ToLong();
         }
-        UnitIdStruct unitIdStruct = new UnitIdStruct(zone, Game.Options.Process, this.lastUnitIdTime, this.unitIdValue);
-        return unitIdStruct.ToLong();
+        
+        public long GenerateUnitId(int zone) {
+            if (zone > MaxZone) {
+                throw new Exception($"zone > MaxZone: {zone}");
+            }
+            uint time = TimeSince2020();
+            if (time > this.lastUnitIdTime) {
+                this.lastUnitIdTime = time;
+                this.unitIdValue = 0;
+            } else {
+                ++this.unitIdValue;
+                
+                if (this.unitIdValue > ushort.MaxValue - 1) {
+                    this.unitIdValue = 0;
+                    ++this.lastUnitIdTime; // 借用下一秒
+                    Log.Error($"unitid count per sec overflow: {time} {this.lastUnitIdTime}");
+                }
+            }
+            UnitIdStruct unitIdStruct = new UnitIdStruct(zone, Game.Options.Process, this.lastUnitIdTime, this.unitIdValue);
+            return unitIdStruct.ToLong();
+        }
     }
-}
 }
