@@ -1,14 +1,12 @@
 using System;
 namespace ET {
-    [MessageHandler]
+    [MessageHandler] // 内网消息：是服务器之间的消息，为什么称作内网消息？能不能把各种不同的服务器之间，服务器端的不同功能服务器，注册登录服，网关服，数据库服，等想像理解为一个局域网，所以是内网消息？
     public abstract class AMRpcHandler<Request, Response>: IMHandler where Request : class, IRequest where Response : class, IResponse {
-
         protected abstract ETTask Run(Session session, Request request, Response response, Action reply);
 // 这下面的方法：是报错的时候自动添加的
         public ETTask Run(Session session, M2C_TestActorMessage message) {
                 throw new NotImplementedException();
         }
-
         public void Handle(Session session, object message) {
             HandleAsync(session, message).Coroutine();
         }

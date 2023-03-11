@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Net;
 namespace ET {
-    
 // 这是服务器端：处理客户端登录请求的逻辑
     [MessageHandler]
     public class C2R_LoginHandler : AMRpcHandler<C2R_Login, R2C_Login> {
@@ -11,7 +10,7 @@ namespace ET {
             Log.Debug($"gate address: {MongoHelper.ToJson(config)}");
             // 向gate请求一个key,客户端可以拿着这个key连接gate 【这里也是前面提到过的，知道了对方的 InstanceId, 就可以给对方发消息，这里是Realm 与网关服的内网消息】
             G2R_GetLoginKey g2RGetLoginKey = (G2R_GetLoginKey) await ActorMessageSenderComponent.Instance.Call(
-                config.InstanceId, new R2G_GetLoginKey() {Account = request.Account}); // 这里要去，找哪里的处理逻辑？
+                config.InstanceId, new R2G_GetLoginKey() {Account = request.Account}); // 这里要去，找哪里的处理逻辑？想要知道这里，Gate 是如何处理相关逻辑的？
 
 // 这个，下午看的，感觉脑袋没有早上那么清醒了，内网外网IP 地址，内网外网端口，没有看得狠懂，改天早上再跟进去看一下
             // 地址：应该是，服务器处理后，分配给这个客户端的网关服的，对外连接端口，供客户端接下来，可以与网关服直接发送交换消息 
