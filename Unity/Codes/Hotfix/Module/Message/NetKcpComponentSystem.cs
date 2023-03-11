@@ -2,7 +2,6 @@
 using System.IO;
 using System.Net;
 namespace ET {
-    
     [FriendClass(typeof(NetThreadComponent))]
     [ObjectSystem]
     public class NetKcpComponentAwakeSystem: AwakeSystem<NetKcpComponent, int> {
@@ -35,7 +34,6 @@ namespace ET {
             self.Service.Destroy();
         }
     }
-
     [FriendClass(typeof(NetKcpComponent))]
     public static class NetKcpComponentSystem {
         private const string TAG = "NetKcpComponentSystem";
@@ -50,7 +48,6 @@ namespace ET {
             SessionStreamDispatcher.Instance.Dispatch(self.SessionStreamDispatcherType, session, memoryStream); // <<<<<<<<<<
             // 接下来是： SessionStreamDispatcherServerOuter.cs
         }
-
         public static void OnError(this NetKcpComponent self, long channelId, int error) {
             Session session = self.GetChild<Session>(channelId);
             if (session == null) {
@@ -59,14 +56,13 @@ namespace ET {
             session.Error = error;
             session.Dispose();
         }
-
         // 这个channelId是由CreateAcceptChannelId生成的
         public static void OnAccept(this NetKcpComponent self, long channelId, IPEndPoint ipEndPoint) {
             Session session = self.AddChildWithId<Session, AService>(channelId, self.Service);
             session.RemoteAddress = ipEndPoint;
             // 挂上这个组件，5秒就会删除session，所以客户端验证完成要删除这个组件。该组件的作用就是防止外挂一直连接不发消息也不进行权限验证
-            session.AddComponent<SessionAcceptTimeoutComponent>();
-            // 客户端连接，2秒检查一次recv消息，10秒没有消息则断开
+            session.AddComponent<SessionAcceptTimeoutComponent>(); // 接下来是在：注册登录之后，拿到与网关服的通信认证，客户端登录网关服的时候，会把这个组件去掉
+            // 客户端连接，2秒检查一次recv消息，10秒没有消息则断开【这是，传说中的心跳包吗？】
             session.AddComponent<SessionIdleCheckerComponent, int>(NetThreadComponent.checkInteral);
         }
         public static Session Get(this NetKcpComponent self, long id) {

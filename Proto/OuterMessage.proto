@@ -265,7 +265,6 @@ message M2C_Stop // IActorMessage
 	float W = 9;
 }
 
-
 message G2C_Test // IMessage
 {
 }

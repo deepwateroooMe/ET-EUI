@@ -14,6 +14,7 @@ namespace ET {
     [ObjectSystem]
     public class SessionAcceptTimeoutComponentAwakeSystem: AwakeSystem<SessionAcceptTimeoutComponent> {
         public override void Awake(SessionAcceptTimeoutComponent self) {
+            // 这就是前面说的：刚创建的时候，只有 5 秒
             self.Timer = TimerComponent.Instance.NewOnceTimer(TimeHelper.ServerNow() + 5000, TimerType.SessionAcceptTimeout, self);
         }
     }
