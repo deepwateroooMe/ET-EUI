@@ -9,6 +9,7 @@ using ProtoBuf.Meta;
 namespace ET {
     public static class ProtobufHelper {
         private const string TAG = "ProtobufHelper";
+
         public static void Init() {
         }
         public static object FromBytes(Type type, byte[] bytes, int index, int count) {
@@ -30,8 +31,6 @@ namespace ET {
             ProtoBuf.Serializer.Serialize(stream, message);
         }
         public static object FromStream(Type type, MemoryStream stream) {
-            Log.Error(TAG, "stream.Length.ToString(): " + stream.Length.ToString());
-            Log.Error(TAG, "type.Name: " + type.Name);
             object o = RuntimeTypeModel.Default.Deserialize(stream, null, type);
             if (o is ISupportInitialize supportInitialize) { // 这里是，有没有注册什么回调接口之类的
                 supportInitialize.EndInit();
@@ -40,4 +39,3 @@ namespace ET {
         }
     }
 }
-

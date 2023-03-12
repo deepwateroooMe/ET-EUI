@@ -44,9 +44,7 @@ namespace ET {
                 return;
             }
             session.LastRecvTime = TimeHelper.ClientNow();
-// 这里仍然是没有问题的，还在后面出的错
-            SessionStreamDispatcher.Instance.Dispatch(self.SessionStreamDispatcherType, session, memoryStream); // <<<<<<<<<<
-            // 接下来是： SessionStreamDispatcherServerOuter.cs
+            SessionStreamDispatcher.Instance.Dispatch(self.SessionStreamDispatcherType, session, memoryStream); 
         }
         public static void OnError(this NetKcpComponent self, long channelId, int error) {
             Session session = self.GetChild<Session>(channelId);

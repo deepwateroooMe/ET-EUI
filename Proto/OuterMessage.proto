@@ -32,12 +32,14 @@ message L2A_LoginAccountResponse // IActorResponse
 	int64 Key = 2;
 	int64 GateId = 3;
 }
+
 message ServerInfoProto
 {
     int32 Id = 1;
     int32 Status = 2;
     string ServerName = 3;
 }
+
 //ResponseType A2C_GetServerInfos
 message C2A_GetServerInfos // IRequest
 {
@@ -45,6 +47,21 @@ message C2A_GetServerInfos // IRequest
     string Token = 1;
     int64 AccountId = 2;
 }
+
+//ResponseType G2C_EnterMap
+message C2G_EnterMap // IRequest
+{
+	int32 RpcId = 1;
+}
+message G2C_EnterMapG2C_EnterMap // IResponse
+{
+	int32 RpcId = 1;
+	int32 Error = 2;
+	string Message = 3;
+	// 自己unitId
+	int64 MyId = 4;
+}
+
 message A2C_GetServerInfos // IResponse
 {
     int32 RpcId = 90;
@@ -122,21 +139,6 @@ message Actor_TransferResponse // IActorLocationResponse
 	int32 RpcId = 90;
 	int32 Error = 91;
 	string Message = 92;
-}
-
-//ResponseType G2C_EnterMap
-message C2G_EnterMap // IRequest
-{
-	int32 RpcId = 1;
-}
-
-message G2C_EnterMap // IResponse
-{
-	int32 RpcId = 1;
-	int32 Error = 2;
-	string Message = 3;
-	// 自己unitId
-	int64 MyId = 4;
 }
 
 message MoveInfo

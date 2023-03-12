@@ -20,7 +20,6 @@ namespace ET {
                 return;
             }
             OpcodeHelper.LogMsg(session.DomainZone(), opcode, message);
-            
             DispatchAsync(session, opcode, message).Coroutine();
         }
         public async ETTask DispatchAsync(Session session, ushort opcode, object message) {

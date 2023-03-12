@@ -50,7 +50,6 @@ namespace ET {
             this.isSending = false;
             this.Service.ThreadSynchronizationContext.PostNext(this.ConnectAsync);
         }
-        
         public TChannel(long id, Socket socket, TService service) {
             this.ChannelType = ChannelType.Accept;
             this.Id = id;
@@ -63,21 +62,17 @@ namespace ET {
             this.RemoteAddress = (IPEndPoint)socket.RemoteEndPoint;
             this.isConnected = true;
             this.isSending = false;
-            
             // 下一帧再开始读写
             this.Service.ThreadSynchronizationContext.PostNext(() => {
                 this.StartRecv();
                 this.StartSend();
             });
         }
-        
-        
         public override void Dispose() {
             if (this.IsDisposed) {
                 return;
             }
             Log.Info($"channel dispose: {this.Id} {this.RemoteAddress}");
-            
             long id = this.Id;
             this.Id = 0;
             this.Service.Remove(id);
@@ -95,8 +90,7 @@ namespace ET {
             switch (this.Service.ServiceType) {
             case ServiceType.Inner: {
                 int messageSize = (int) (stream.Length - stream.Position);
-                if (messageSize > ushort.MaxValue * 16)
-                {
+                if (messageSize > ushort.MaxValue * 16) {
                     throw new Exception($"send packet too large: {stream.Length} {stream.Position}");
                 }
                 this.sendCache.WriteTo(0, messageSize);
@@ -111,7 +105,7 @@ namespace ET {
                 ushort messageSize = (ushort) (stream.Length - stream.Position);
                 this.sendCache.WriteTo(0, messageSize);
                 this.sendBuffer.Write(this.sendCache, 0, PacketParser.OuterPacketSizeLength);
-                    
+
                 this.sendBuffer.Write(stream.GetBuffer(), (int)stream.Position, (int)(stream.Length - stream.Position));
                 break;
             }
@@ -151,11 +145,9 @@ namespace ET {
         private void StartRecv() {
             while (true) {
                 try {
-                    if (this.socket == null)
-                    {
+                    if (this.socket == null) {
                         return;
                     }
-                    
                     int size = this.recvBuffer.ChunkSize - this.recvBuffer.LastIndex;
                     this.innArgs.SetBuffer(this.recvBuffer.Last, this.recvBuffer.LastIndex, size);
                 }
@@ -164,7 +156,6 @@ namespace ET {
                     this.OnError(ErrorCore.ERR_TChannelRecvError);
                     return;
                 }
-            
                 if (this.socket.ReceiveAsync(this.innArgs)) {
                     return;
                 }
@@ -205,11 +196,10 @@ namespace ET {
                 }
                 try {
                     bool ret = this.parser.Parse();
-                    if (!ret)
-                    {
+                    if (!ret) {
                         break;
                     }
-                    
+
                     this.OnRead(this.parser.MemoryStream);
                 }
                 catch (Exception ee) {
@@ -229,35 +219,31 @@ namespace ET {
             if (this.isSending) {
                 return;
             }
-            
+
             while (true) {
                 try {
-                    if (this.socket == null)
-                    {
+                    if (this.socket == null) {
                         this.isSending = false;
                         return;
                     }
-                    
+
                     // 没有数据需要发送
-                    if (this.sendBuffer.Length == 0)
-                    {
+                    if (this.sendBuffer.Length == 0) {
                         this.isSending = false;
                         return;
                     }
                     this.isSending = true;
                     int sendSize = this.sendBuffer.ChunkSize - this.sendBuffer.FirstIndex;
-                    if (sendSize > this.sendBuffer.Length)
-                    {
+                    if (sendSize > this.sendBuffer.Length) {
                         sendSize = (int)this.sendBuffer.Length;
                     }
-                    
+
                     this.outArgs.SetBuffer(this.sendBuffer.First, this.sendBuffer.FirstIndex, sendSize);
-                    
-                    if (this.socket.SendAsync(this.outArgs))
-                    {
+
+                    if (this.socket.SendAsync(this.outArgs)) {
                         return;
                     }
-                
+
                     HandleSend(this.outArgs);
                 }
                 catch (Exception e) {
@@ -267,34 +253,34 @@ namespace ET {
         }
         private void OnSendComplete(object o) {
             HandleSend(o);
-            
+
             this.isSending = false;
-            
+
             this.StartSend();
         }
         private void HandleSend(object o) {
             if (this.socket == null) {
                 return;
             }
-            
+
             SocketAsyncEventArgs e = (SocketAsyncEventArgs) o;
             if (e.SocketError != SocketError.Success) {
                 this.OnError((int)e.SocketError);
                 return;
             }
-            
+
             if (e.BytesTransferred == 0) {
                 this.OnError(ErrorCore.ERR_PeerDisconnect);
                 return;
             }
-            
+
             this.sendBuffer.FirstIndex += e.BytesTransferred;
             if (this.sendBuffer.FirstIndex == this.sendBuffer.ChunkSize) {
                 this.sendBuffer.FirstIndex = 0;
                 this.sendBuffer.RemoveFirst();
             }
         }
-        
+
         private void OnRead(MemoryStream memoryStream) {
             try {
                 long channelId = this.Id;
@@ -308,11 +294,11 @@ namespace ET {
         }
         private void OnError(int error) {
             Log.Info($"TChannel OnError: {error} {this.RemoteAddress}");
-            
+
             long channelId = this.Id;
-            
+
             this.Service.Remove(channelId);
-            
+
             this.Service.OnError(channelId, error);
         }
 #endregion

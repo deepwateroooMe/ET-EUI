@@ -20,7 +20,6 @@ namespace ET {
             throw new Exception($"client no message: {opcode}");
 #endif
         }
-
         public static void SerializeTo(ushort opcode, object obj, MemoryStream memoryStream) {
             try {
                 if (opcode < OpcodeRangeDefine.PbMaxOpcode) {
@@ -43,7 +42,6 @@ namespace ET {
                 throw new Exception($"SerializeTo error: {opcode}", e);
             }
         }
-
         public static MemoryStream GetStream(int count = 0) {
             MemoryStream stream;
             if (count > 0) {

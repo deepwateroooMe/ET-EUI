@@ -38,7 +38,6 @@ namespace ET {
         }
         public static void OnRead(this Session self, ushort opcode, IResponse response) {
             OpcodeHelper.LogMsg(self.DomainZone(), opcode, response);
-            
             if (!self.requestCallbacks.TryGetValue(response.RpcId, out var action)) {
                 return;
             }
