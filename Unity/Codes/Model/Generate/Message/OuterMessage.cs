@@ -102,6 +102,35 @@ namespace ET
 
 	}
 
+	[ResponseType(nameof(G2C_EnterMap))]
+	[Message(OuterOpcode.C2G_EnterMap)]
+	[ProtoContract]
+	public partial class C2G_EnterMap: Object, IRequest
+	{
+		[ProtoMember(1)]
+		public int RpcId { get; set; }
+
+	}
+
+	[Message(OuterOpcode.G2C_EnterMap)]
+	[ProtoContract]
+	public partial class G2C_EnterMap: Object, IResponse
+	{
+		[ProtoMember(1)]
+		public int RpcId { get; set; }
+
+		[ProtoMember(2)]
+		public int Error { get; set; }
+
+		[ProtoMember(3)]
+		public string Message { get; set; }
+
+// 自己unitId
+		[ProtoMember(4)]
+		public long MyId { get; set; }
+
+	}
+
 	[Message(OuterOpcode.A2C_GetServerInfos)]
 	[ProtoContract]
 	public partial class A2C_GetServerInfos: Object, IResponse
@@ -274,35 +303,6 @@ namespace ET
 
 		[ProtoMember(92)]
 		public string Message { get; set; }
-
-	}
-
-	[ResponseType(nameof(G2C_EnterMap))]
-	[Message(OuterOpcode.C2G_EnterMap)]
-	[ProtoContract]
-	public partial class C2G_EnterMap: Object, IRequest
-	{
-		[ProtoMember(1)]
-		public int RpcId { get; set; }
-
-	}
-
-	[Message(OuterOpcode.G2C_EnterMap)]
-	[ProtoContract]
-	public partial class G2C_EnterMap: Object, IResponse
-	{
-		[ProtoMember(1)]
-		public int RpcId { get; set; }
-
-		[ProtoMember(2)]
-		public int Error { get; set; }
-
-		[ProtoMember(3)]
-		public string Message { get; set; }
-
-// 自己unitId
-		[ProtoMember(4)]
-		public long MyId { get; set; }
 
 	}
 

@@ -53,7 +53,7 @@ message C2G_EnterMap // IRequest
 {
 	int32 RpcId = 1;
 }
-message G2C_EnterMapG2C_EnterMap // IResponse
+message G2C_EnterMap // IResponse
 {
 	int32 RpcId = 1;
 	int32 Error = 2;
