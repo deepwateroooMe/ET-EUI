@@ -82,6 +82,17 @@ message M2C_TestActorLocationResponse // IActorLocationResponse
     string Message = 92;
     string Content = 1;
 }
+message M2C_CreateMyUnit // IActorMessage
+{
+	UnitInfo Unit = 1;
+}
+
+message M2C_StartSceneChange // IActorMessage
+{
+	int64 SceneInstanceId = 1;
+	string SceneName = 2;	
+}
+
 message C2M_TestActorLocationMessage // IActorLocationMessage
 {
     int32 RpcId = 90;
@@ -134,26 +145,6 @@ message Actor_TransferRequest // IActorLocationRequest
 	int32 MapIndex = 1;
 }
 
-message Actor_TransferResponse // IActorLocationResponse
-{
-	int32 RpcId = 90;
-	int32 Error = 91;
-	string Message = 92;
-}
-
-message MoveInfo
-{
-	repeated float X = 1;
-	repeated float Y = 2;
-	repeated float Z = 3;
-
-	float A = 4;
-	float B = 5;
-	float C = 6;
-	float W = 7;
-	int32 TurnSpeed = 8;
-}
-
 //ResponseType R2C_Login
 message C2R_Login // IRequest
 {
@@ -188,6 +179,26 @@ message G2C_LoginGate // IResponse
 	int64 PlayerId = 1;
 }
 
+message Actor_TransferResponse // IActorLocationResponse
+{
+	int32 RpcId = 90;
+	int32 Error = 91;
+	string Message = 92;
+}
+
+message MoveInfo
+{
+	repeated float X = 1;
+	repeated float Y = 2;
+	repeated float Z = 3;
+
+	float A = 4;
+	float B = 5;
+	float C = 6;
+	float W = 7;
+	int32 TurnSpeed = 8;
+}
+
 message UnitInfo
 {
 	int64 UnitId = 1;
@@ -209,15 +220,17 @@ message M2C_CreateUnits // IActorMessage
 	repeated UnitInfo Units = 2;
 }
 
-message M2C_CreateMyUnit // IActorMessage
+//ResponseType M2C_TransferMap
+message C2M_TransferMap // IActorLocationRequest
 {
-	UnitInfo Unit = 1;
+	int32 RpcId = 1;
 }
 
-message M2C_StartSceneChange // IActorMessage
+message M2C_TransferMap // IActorLocationResponse
 {
-	int64 SceneInstanceId = 1;
-	string SceneName = 2;	
+	int32 RpcId = 90;
+	int32 Error = 91;
+	string Message = 92;
 }
 
 message M2C_RemoveUnits // IActorMessage
@@ -304,17 +317,4 @@ message M2C_TestRobotCase // IActorLocationResponse
 	int32 Error = 91;
 	string Message = 92;
 	int32 N = 1;
-}
-
-//ResponseType M2C_TransferMap
-message C2M_TransferMap // IActorLocationRequest
-{
-	int32 RpcId = 1;
-}
-
-message M2C_TransferMap // IActorLocationResponse
-{
-	int32 RpcId = 90;
-	int32 Error = 91;
-	string Message = 92;
 }

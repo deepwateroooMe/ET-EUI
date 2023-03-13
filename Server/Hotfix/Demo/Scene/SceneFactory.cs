@@ -10,13 +10,12 @@ namespace ET {
             await ETTask.CompletedTask;
             Scene scene = EntitySceneFactory.CreateScene(id, instanceId, zone, sceneType, name, parent);
             scene.AddComponent<MailBoxComponent, MailboxType>(MailboxType.UnOrderMessageDispatcher);
-            switch (scene.SceneType) { // 其实现在Account 服，也就是 Realm 注册登录服呀
+            switch (scene.SceneType) {  // 其实现在Account 服，也就是 Realm 注册登录服呀
                 case SceneType.Account: // 现小服：添加了令牌管理 
                     scene.AddComponent<NetKcpComponent, IPEndPoint, int>(startSceneConfig.OuterIPPort, SessionStreamDispatcherType.SessionStreamDispatcherServerOuter);
                     scene.AddComponent<TokenComponent>(); // 就是有了一个最简单的10 分钟令牌有效会话框 
                     scene.AddComponent<AccountSessionsComponent>();
-                    /* scene.AddComponent<ServerInfoManagerComponent>(); // 这里不知道数据库里面是怎么添加的.那么就是相当于没有添加这个模块
-                     */
+                    // scene.AddComponent<ServerInfoManagerComponent>(); // 这里不知道数据库里面是怎么添加的.那么就是相当于没有添加这个模块
                      break;
                 case SceneType.Realm:
                     scene.AddComponent<NetKcpComponent, IPEndPoint, int>(startSceneConfig.OuterIPPort, SessionStreamDispatcherType.SessionStreamDispatcherServerOuter);

@@ -5,9 +5,9 @@ namespace ET {
         public static long TIMEOUT_TIME = 40 * 1000; // 40 秒
         public static ActorMessageSenderComponent Instance { get; set; } // 单例
         public int RpcId;
-// 这里为什么，要使用有序字典 ? 这个字典 ?
+// 这里为什么，要使用有序字典 ? 这个字典 ? 只是因为字典的键是 int, 排序找起来快快一点儿吗？
         public readonly SortedDictionary<int, ActorMessageSender> requestCallback = new SortedDictionary<int, ActorMessageSender>();
         public long TimeoutCheckTimer;
-        public List<int> TimeoutActorMessageSenders = new List<int>(); // ？还没弄懂
+        public List<int> TimeoutActorMessageSenders = new List<int>(); // 
     }
 }

@@ -2,25 +2,19 @@
 namespace ET {
     [ActorMessageHandler]
     public class C2M_TransferMapHandler : AMActorLocationRpcHandler<Unit, C2M_TransferMap, M2C_TransferMap> {
+
         protected override async ETTask Run(Unit unit, C2M_TransferMap request, M2C_TransferMap response, Action reply) {
             await ETTask.CompletedTask;
             string currentMap = unit.DomainScene().Name;
             string toMap = null;
-            if (currentMap == "Map1") {
+            if (currentMap == "Map1") { // 按它这里逻辑的意思：就是切换游戏场景，切换地图呀，从1 ＝＝》2 2 ＝＝》 7 之类的 ?
                 toMap = "Map2";
-            }
-            else {
+            } else {
                 toMap = "Map1";
             }
             StartSceneConfig startSceneConfig = StartSceneConfigCategory.Instance.GetBySceneName(unit.DomainScene().Zone, toMap);
             TransferHelper.Transfer(unit, startSceneConfig.InstanceId, toMap).Coroutine();
-            
             reply();
         }
     }
 }
-
-
-
-
-

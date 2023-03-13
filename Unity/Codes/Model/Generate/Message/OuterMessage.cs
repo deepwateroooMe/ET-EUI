@@ -180,6 +180,27 @@ namespace ET
 
 	}
 
+	[Message(OuterOpcode.M2C_CreateMyUnit)]
+	[ProtoContract]
+	public partial class M2C_CreateMyUnit: Object, IActorMessage
+	{
+		[ProtoMember(1)]
+		public UnitInfo Unit { get; set; }
+
+	}
+
+	[Message(OuterOpcode.M2C_StartSceneChange)]
+	[ProtoContract]
+	public partial class M2C_StartSceneChange: Object, IActorMessage
+	{
+		[ProtoMember(1)]
+		public long SceneInstanceId { get; set; }
+
+		[ProtoMember(2)]
+		public string SceneName { get; set; }
+
+	}
+
 	[Message(OuterOpcode.C2M_TestActorLocationMessage)]
 	[ProtoContract]
 	public partial class C2M_TestActorLocationMessage: Object, IActorLocationMessage
@@ -291,51 +312,6 @@ namespace ET
 
 	}
 
-	[Message(OuterOpcode.Actor_TransferResponse)]
-	[ProtoContract]
-	public partial class Actor_TransferResponse: Object, IActorLocationResponse
-	{
-		[ProtoMember(90)]
-		public int RpcId { get; set; }
-
-		[ProtoMember(91)]
-		public int Error { get; set; }
-
-		[ProtoMember(92)]
-		public string Message { get; set; }
-
-	}
-
-	[Message(OuterOpcode.MoveInfo)]
-	[ProtoContract]
-	public partial class MoveInfo: Object
-	{
-		[ProtoMember(1)]
-		public List<float> X = new List<float>();
-
-		[ProtoMember(2)]
-		public List<float> Y = new List<float>();
-
-		[ProtoMember(3)]
-		public List<float> Z = new List<float>();
-
-		[ProtoMember(4)]
-		public float A { get; set; }
-
-		[ProtoMember(5)]
-		public float B { get; set; }
-
-		[ProtoMember(6)]
-		public float C { get; set; }
-
-		[ProtoMember(7)]
-		public float W { get; set; }
-
-		[ProtoMember(8)]
-		public int TurnSpeed { get; set; }
-
-	}
-
 	[ResponseType(nameof(R2C_Login))]
 	[Message(OuterOpcode.C2R_Login)]
 	[ProtoContract]
@@ -410,6 +386,51 @@ namespace ET
 
 	}
 
+	[Message(OuterOpcode.Actor_TransferResponse)]
+	[ProtoContract]
+	public partial class Actor_TransferResponse: Object, IActorLocationResponse
+	{
+		[ProtoMember(90)]
+		public int RpcId { get; set; }
+
+		[ProtoMember(91)]
+		public int Error { get; set; }
+
+		[ProtoMember(92)]
+		public string Message { get; set; }
+
+	}
+
+	[Message(OuterOpcode.MoveInfo)]
+	[ProtoContract]
+	public partial class MoveInfo: Object
+	{
+		[ProtoMember(1)]
+		public List<float> X = new List<float>();
+
+		[ProtoMember(2)]
+		public List<float> Y = new List<float>();
+
+		[ProtoMember(3)]
+		public List<float> Z = new List<float>();
+
+		[ProtoMember(4)]
+		public float A { get; set; }
+
+		[ProtoMember(5)]
+		public float B { get; set; }
+
+		[ProtoMember(6)]
+		public float C { get; set; }
+
+		[ProtoMember(7)]
+		public float W { get; set; }
+
+		[ProtoMember(8)]
+		public int TurnSpeed { get; set; }
+
+	}
+
 	[Message(OuterOpcode.UnitInfo)]
 	[ProtoContract]
 	public partial class UnitInfo: Object
@@ -461,24 +482,28 @@ namespace ET
 
 	}
 
-	[Message(OuterOpcode.M2C_CreateMyUnit)]
+	[ResponseType(nameof(M2C_TransferMap))]
+	[Message(OuterOpcode.C2M_TransferMap)]
 	[ProtoContract]
-	public partial class M2C_CreateMyUnit: Object, IActorMessage
+	public partial class C2M_TransferMap: Object, IActorLocationRequest
 	{
 		[ProtoMember(1)]
-		public UnitInfo Unit { get; set; }
+		public int RpcId { get; set; }
 
 	}
 
-	[Message(OuterOpcode.M2C_StartSceneChange)]
+	[Message(OuterOpcode.M2C_TransferMap)]
 	[ProtoContract]
-	public partial class M2C_StartSceneChange: Object, IActorMessage
+	public partial class M2C_TransferMap: Object, IActorLocationResponse
 	{
-		[ProtoMember(1)]
-		public long SceneInstanceId { get; set; }
+		[ProtoMember(90)]
+		public int RpcId { get; set; }
 
-		[ProtoMember(2)]
-		public string SceneName { get; set; }
+		[ProtoMember(91)]
+		public int Error { get; set; }
+
+		[ProtoMember(92)]
+		public string Message { get; set; }
 
 	}
 
@@ -652,31 +677,6 @@ namespace ET
 
 		[ProtoMember(1)]
 		public int N { get; set; }
-
-	}
-
-	[ResponseType(nameof(M2C_TransferMap))]
-	[Message(OuterOpcode.C2M_TransferMap)]
-	[ProtoContract]
-	public partial class C2M_TransferMap: Object, IActorLocationRequest
-	{
-		[ProtoMember(1)]
-		public int RpcId { get; set; }
-
-	}
-
-	[Message(OuterOpcode.M2C_TransferMap)]
-	[ProtoContract]
-	public partial class M2C_TransferMap: Object, IActorLocationResponse
-	{
-		[ProtoMember(90)]
-		public int RpcId { get; set; }
-
-		[ProtoMember(91)]
-		public int Error { get; set; }
-
-		[ProtoMember(92)]
-		public string Message { get; set; }
 
 	}
 
